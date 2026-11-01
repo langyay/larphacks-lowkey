@@ -5,7 +5,10 @@
 //   GET /api/shorts?topic=...    -> { shorts: [...] } real YouTube Shorts that teach the topic
 //   GET /api/fun?categories=...  -> { shorts: [...] } doomscroll Shorts (movies, gaming, ...)
 //   POST /api/cards {topic} or {notes} -> { topic, cards: [...] } flashcards written by Gemini
+//   POST /api/speak {text, voice} -> { audio, words } ElevenLabs narration with word timings
 
+import { createHash } from 'node:crypto'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import express from 'express'
 
 const PORT = process.env.PORT || 8787
@@ -352,8 +355,113 @@ app.post('/api/cards', async (req, res) => {
   }
 })
 
+// ---- Narration from ElevenLabs ----
+
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
+// Built-in voices that work on the free plan (tested), or your own list in .env.
+const BUILT_IN_VOICES = [
+  'JBFqnCBsd6RMkjVDRZzb', // George
+  'EXAVITQu4vr4xnSDxMaL', // Sarah
+  'pNInz6obpgDQGcFmaJgB', // Adam
+  'FGY2WhTYpPnrIDTdsKH5', // Laura
+  'TX3LPaxmHKxFdv7VOQHJ', // Liam
+  'cgSgspJ2msm6clMCkdW9', // Jessica
+  'nPczCjzI2devNBz1zQrb', // Brian
+  'XrExE9yKIg1WjnnlVkGX', // Matilda
+  'N2lVS1w4EtoT3dr4eOWO', // Callum
+]
+const VOICES = (process.env.ELEVENLABS_VOICE_IDS ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+const voiceList = VOICES.length ? VOICES : BUILT_IN_VOICES
+
+// Free credits are small, so every clip is saved to disk and reused, even
+// after the server restarts. (The folder is in .gitignore.)
+const AUDIO_DIR = new URL('./audio-cache/', import.meta.url)
+await mkdir(AUDIO_DIR, { recursive: true })
+
+// Turn ElevenLabs' per-letter timings into per-word timings, matching
+// text.split(/\s+/) so the app can light up each word as it's said.
+function wordTimings(text, alignment) {
+  const words = text.split(/\s+/).filter(Boolean)
+  const chars = alignment?.characters ?? []
+  const starts = alignment?.character_start_times_seconds ?? []
+  const ends = alignment?.character_end_times_seconds ?? []
+  const timed = []
+  let current = null
+  chars.forEach((ch, i) => {
+    if (/\s/.test(ch)) {
+      if (current) timed.push(current)
+      current = null
+    } else if (!current) {
+      current = { start: starts[i], end: ends[i] }
+    } else {
+      current.end = ends[i]
+    }
+  })
+  if (current) timed.push(current)
+  // If the counts don't line up, spread the words evenly over the clip instead.
+  if (timed.length !== words.length) {
+    const total = ends.at(-1) ?? words.length * 0.35
+    return words.map((w, i) => ({
+      word: w,
+      start: (total * i) / words.length,
+      end: (total * (i + 1)) / words.length,
+    }))
+  }
+  return words.map((w, i) => ({ word: w, start: timed[i].start, end: timed[i].end }))
+}
+
+app.post('/api/speak', async (req, res) => {
+  const text = typeof req.body?.text === 'string' ? req.body.text.trim() : ''
+  const voiceNumber = Number.isInteger(req.body?.voice) ? Math.abs(req.body.voice) : 0
+  if (!text || text.length > 400) {
+    return res.status(400).json({ error: 'Send between 1 and 400 characters of text.' })
+  }
+  if (!ELEVENLABS_API_KEY) {
+    return res.status(503).json({ error: 'The ElevenLabs key is missing on the server.' })
+  }
+
+  const voiceId = voiceList[voiceNumber % voiceList.length]
+  const name = createHash('sha256').update(`${voiceId}:${text}`).digest('hex').slice(0, 32)
+  const file = new URL(`${name}.json`, AUDIO_DIR)
+  try {
+    return res.json(JSON.parse(await readFile(file, 'utf8')))
+  } catch {
+    // Not saved yet: make it below.
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_64`,
+      {
+        method: 'POST',
+        headers: { 'xi-api-key': ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, model_id: 'eleven_flash_v2_5' }),
+        signal: AbortSignal.timeout(20000),
+      },
+    )
+    const body = await response.json().catch(() => ({}))
+    if (!response.ok) {
+      console.error('ElevenLabs error:', response.status, body?.detail?.message ?? body?.detail)
+      const outOfCredits = response.status === 401 || response.status === 402 || response.status === 429
+      return res.status(502).json({
+        error: outOfCredits ? 'Out of free voice credits for now.' : "Couldn't make the voice right now.",
+      })
+    }
+    const result = { audio: body.audio_base64, words: wordTimings(text, body.alignment) }
+    await writeFile(file, JSON.stringify(result))
+    res.json(result)
+  } catch (error) {
+    console.error('ElevenLabs request failed:', error.message)
+    res.status(502).json({ error: "Couldn't reach the voice service right now." })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Lowkey server on http://localhost:${PORT}`)
   if (!YOUTUBE_API_KEY) console.warn('Warning: YOUTUBE_API_KEY is not set.')
   if (!GEMINI_API_KEY) console.warn('Warning: GEMINI_API_KEY is not set.')
+  if (!ELEVENLABS_API_KEY) console.warn('Warning: ELEVENLABS_API_KEY is not set.')
 })

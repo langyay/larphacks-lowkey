@@ -14,6 +14,17 @@ import Avatar from '@/components/Avatar'
 import MemeBackground from '@/components/MemeBackground'
 import ReelSidebar from '@/components/ReelSidebar'
 import { makeChannel } from '@/lib/fakeChannel'
+import { toggleSound, unlockSound, useNarration, useSound } from '@/lib/narration'
+
+// Caption text where the word being spoken lights up yellow, like Shorts captions.
+function SpokenText({ text, active }) {
+  if (active < 0) return text
+  return text.split(/\s+/).map((word, i) => (
+    <span key={i} className={i === active ? 'text-[#ffe14d]' : undefined}>
+      {word}{' '}
+    </span>
+  ))
+}
 
 // Round dark button used for the desktop player controls (top of the video).
 export function PlayerButton({ label, onClick, pressed, children }) {
@@ -69,8 +80,8 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
   const [saved, setSaved] = useState(false)
   const [clear, setClear] = useState(false)
   const [paused, setPaused] = useState(false)
-  const [muted, setMuted] = useState(false)
   const [captionsOn, setCaptionsOn] = useState(true)
+  const { soundOn } = useSound()
 
   // Know when this card is on screen, so its progress line only runs then
   // and starts from zero each time it comes into view.
@@ -88,6 +99,14 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
     observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
+
+  // The creator's voice reads the side that's showing while the card is on screen.
+  const narration = useNarration(
+    revealed ? card.answer : card.question,
+    channel.voice,
+    inView && !paused,
+  )
+  const spoken = captionsOn && narration.status === 'playing' ? narration.word : -1
 
   // Like and dislike cancel each other out, as on YouTube.
   const like = () => {
@@ -180,15 +199,16 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
                 }`}
               >
                 <h2 className="shorts-caption text-[30px] leading-[1.15] [grid-area:1/1] [backface-visibility:hidden]">
-                  {card.question}
+                  <SpokenText text={card.question} active={revealed ? -1 : spoken} />
                 </h2>
                 <p className="shorts-caption text-[26px] leading-[1.2] [grid-area:1/1] [backface-visibility:hidden] [transform:rotateX(180deg)]">
-                  {card.answer}
+                  <SpokenText text={card.answer} active={revealed ? spoken : -1} />
                 </p>
               </div>
               {!clear && (
                 <span className="mt-5 rounded-full bg-black/45 px-3 py-1 text-sm font-medium text-white/90">
                   {revealed ? 'Tap to see the question' : 'Tap to reveal the answer'}
+                  {narration.status === 'error' && ' · voice unavailable'}
                 </span>
               )}
             </div>
@@ -196,8 +216,29 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
 
           {!clear && (
             <>
-              {/* Phone: search and ••• in the top-right corner. */}
+              {/* Browsers block sound until the first tap, so ask for one. */}
+              {narration.status === 'locked' && (
+                <button
+                  type="button"
+                  onClick={unlockSound}
+                  className="absolute top-[max(10px,env(safe-area-inset-top))] left-3 z-10 flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-white lg:top-[76px]"
+                >
+                  <VolumeX className="size-4" />
+                  Tap for sound
+                </button>
+              )}
+
+              {/* Phone: sound, search and ••• in the top-right corner. */}
               <div className="absolute top-0 right-0 flex pt-[max(6px,env(safe-area-inset-top))] pr-1.5 lg:hidden">
+                <button
+                  type="button"
+                  onClick={toggleSound}
+                  aria-label={soundOn ? 'Mute narration' : 'Unmute narration'}
+                  aria-pressed={!soundOn}
+                  className="flex size-11 cursor-pointer items-center justify-center drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]"
+                >
+                  {soundOn ? <Volume2 className="size-6" /> : <VolumeX className="size-6" />}
+                </button>
                 <button
                   type="button"
                   onClick={() => onOpenComments({ tab: 'search' })}
@@ -233,13 +274,14 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
                   </div>
                   <div className="rounded-full bg-black/40">
                     <PlayerButton
-                      label={muted ? 'Unmute' : 'Mute'}
-                      onClick={() => setMuted((m) => !m)}
+                      label={soundOn ? 'Mute narration' : 'Unmute narration'}
+                      onClick={toggleSound}
+                      pressed={!soundOn}
                     >
-                      {muted ? (
-                        <VolumeX className="size-6" />
-                      ) : (
+                      {soundOn ? (
                         <Volume2 className="size-6" />
+                      ) : (
+                        <VolumeX className="size-6" />
                       )}
                     </PlayerButton>
                   </div>

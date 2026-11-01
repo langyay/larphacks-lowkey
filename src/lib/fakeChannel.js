@@ -78,6 +78,8 @@ export function makeChannel(seed) {
     format: pick(rand, ['split', 'split', 'full', 'pov']),
     background: pick(rand, ['runner', 'runner', 'parkour', 'slice', 'marbles']),
     pov: pick(rand, povLines),
+    // Which narrator voice this creator has (the server maps it to a voice).
+    voice: Math.floor(rand() * 1000),
   }
 }
 
