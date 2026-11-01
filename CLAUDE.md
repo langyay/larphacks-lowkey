@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+The project spec is in spec.md. Read it before planning anything.
+
 ## Working with me
 
 I'm a beginner: new to the terminal, Git and JavaScript.
