@@ -51,14 +51,14 @@
 
 :root {
     --radius: 0.625rem;
-    /* Warm-tinted neutrals + one coral accent (--primary). */
+    /* Warm-tinted neutrals + one YouTube-style red accent (--primary). */
     --background: oklch(0.985 0.004 75);
     --foreground: oklch(0.18 0.008 60);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.18 0.008 60);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.18 0.008 60);
-    --primary: oklch(0.68 0.18 38);
+    --primary: oklch(0.62 0.25 27);
     --primary-foreground: oklch(0.99 0 0);
     --secondary: oklch(0.955 0.005 75);
     --secondary-foreground: oklch(0.18 0.008 60);
@@ -69,9 +69,9 @@
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.9 0.006 75);
     --input: oklch(0.9 0.006 75);
-    --ring: oklch(0.68 0.18 38);
+    --ring: oklch(0.62 0.25 27);
     /* The dark "reel" surface the feed sits on. */
-    --reel: oklch(0.17 0.008 60);
+    --reel: oklch(0.15 0.004 60);
     --reel-foreground: oklch(0.97 0.004 75);
     --reel-muted: oklch(0.7 0.01 60);
     --chart-1: oklch(0.87 0 0);

@@ -5,13 +5,7 @@ function Feed({ deck }) {
   return (
     <div className="mx-auto h-dvh max-w-[480px] snap-y snap-mandatory overflow-y-scroll border-x border-border">
       {deck.cards.map((card, i) => (
-        <ReelCard
-          key={i}
-          card={card}
-          topic={deck.topic}
-          index={i}
-          total={deck.cards.length}
-        />
+        <ReelCard key={i} card={card} topic={deck.topic} />
       ))}
     </div>
   )
