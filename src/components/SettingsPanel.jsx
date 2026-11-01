@@ -1,5 +1,5 @@
 import { Check, Clapperboard, GraduationCap, Layers, Minus, Plus } from 'lucide-react'
-import { BRAINROT_LEVELS, DEFAULT_SETTINGS, FUN_CATEGORIES, MAX_PER_TYPE } from '@/lib/settings'
+import { APP_LOOKS, BRAINROT_LEVELS, DEFAULT_SETTINGS, FUN_CATEGORIES, MAX_PER_TYPE } from '@/lib/settings'
 
 const rows = [
   { key: 'cards', label: 'Flashcards', hint: 'Your study cards', icon: Layers },
@@ -51,7 +51,32 @@ function SettingsPanel({ settings, onChange }) {
 
   return (
     <div className="px-4 pt-3 pb-6">
-      <h3 className="text-base font-bold">Card voice</h3>
+      <h3 className="text-base font-bold">App look</h3>
+      <p className="mt-1 text-sm text-white/60">Which app the feed pretends to be.</p>
+      <div className="mt-3 grid gap-2">
+        {APP_LOOKS.map((look) => {
+          const on = settings.app === look.id
+          return (
+            <button
+              key={look.id}
+              type="button"
+              onClick={() => onChange({ ...settings, app: look.id })}
+              aria-pressed={on}
+              className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                on ? 'bg-[#f1f1f1] text-[#0f0f0f]' : 'bg-white/5 hover:bg-white/10'
+              }`}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium">{look.label}</span>
+                <span className={`block truncate text-xs ${on ? 'text-black/60' : 'text-white/60'}`}>{look.hint}</span>
+              </span>
+              {on && <Check className="size-5 shrink-0" strokeWidth={2.5} />}
+            </button>
+          )
+        })}
+      </div>
+
+      <h3 className="mt-8 text-base font-bold">Card voice</h3>
       <p className="mt-1 text-sm text-white/60">
         How the AI words new flashcards. Applies to topics and notes you search next; the ready-made topics stay normal.
       </p>

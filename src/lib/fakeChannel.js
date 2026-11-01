@@ -80,6 +80,10 @@ export function makeChannel(seed) {
     pov: pick(rand, povLines),
     // Which narrator voice this creator has (the server maps it to a voice).
     voice: Math.floor(rand() * 1000),
+    // Extra counts for the TikTok / Instagram rails (drawn last so the rest stay the same).
+    saves: Math.max(1, Math.round(likes * (0.03 + rand() * 0.1))),
+    shares: Math.max(1, Math.round(likes * (0.02 + rand() * 0.08))),
+    reposts: Math.max(1, Math.round(likes * (0.01 + rand() * 0.05))),
   }
 }
 

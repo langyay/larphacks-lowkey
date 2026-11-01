@@ -5,6 +5,9 @@ import CoverScreen from '@/components/CoverScreen'
 import Landing from '@/components/Landing'
 import { LogoMark } from '@/components/Logo'
 import { setCover, useCover, useCoverGesture } from '@/lib/cover'
+import { SkinProvider } from '@/lib/skin'
+import InstagramHome from '@/skins/InstagramHome'
+import DesktopSidebar from '@/skins/sidebars'
 import { examples, findExample } from '@/data/examples'
 import { fetchCards, fetchFunShorts, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
@@ -49,7 +52,8 @@ function FeedWithComments() {
     cards: examples[0].cards,
     status: 'ready',
   })
-  // The app opens on the landing page; searching (or any deck swap) shows the feed.
+  // The app opens on the home page; searching (or any deck swap) shows the feed.
+  // TikTok has no home page, so it always shows the feed.
   const [view, setView] = useState('home')
   const [settings, setSettings] = useState(loadSettings)
   const changeSettings = (next) => {
@@ -60,7 +64,7 @@ function FeedWithComments() {
   // Bumped by "Try again" to reload Shorts without touching the cards.
   const [shortsRetry, setShortsRetry] = useState(0)
   // Shorts only load while the feed is showing, to spare the YouTube quota.
-  const inFeed = view === 'feed'
+  const inFeed = settings.app === 'tiktok' || view === 'feed'
   const wantLearn = inFeed && settings.mix.learn > 0 && deck.topic !== 'My notes'
   const learn = useShorts(
     (signal) => (wantLearn ? fetchShorts(deck.topic, { signal }) : null),
@@ -172,8 +176,19 @@ function FeedWithComments() {
 
   const fromNotes = (notes) => loadDeck('My notes', [], { notes, style: settings.brainrot })
 
+  // Instagram has its own Explore-style home page; YouTube keeps the video grid.
+  const Home = settings.app === 'instagram' ? InstagramHome : Landing
+
   return (
-    <>
+    <SkinProvider value={settings.app}>
+      <DesktopSidebar
+        current={inFeed ? 'feed' : 'home'}
+        onHome={goHome}
+        onFeed={() => setView('feed')}
+        onSearch={() => openPanel({ tab: 'search' })}
+        onCreate={() => openPanel({ tab: 'search', notes: true })}
+        onProfile={() => openPanel({ tab: 'settings' })}
+      />
       {inFeed && covered && <CoverScreen shorts={decoys.items} onBack={() => setCover(false)} />}
       {inFeed ? (
         <>
@@ -183,23 +198,25 @@ function FeedWithComments() {
             learn={learn}
             fun={fun}
             pattern={settings.mix}
-            onHome={goHome}
+            onHome={settings.app === 'tiktok' ? undefined : goHome}
             onOpenComments={openPanel}
             onRetry={() => setShortsRetry((n) => n + 1)}
             onRetryCards={retryCards}
           />
-          {/* Desktop has no bottom bar, so the logo is its way back home. */}
-          <button
-            type="button"
-            onClick={goHome}
-            aria-label="Home"
-            className="fixed top-4 left-5 z-30 hidden cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white lg:block"
-          >
-            <LogoMark className="size-9" />
-          </button>
+          {/* YouTube on desktop has no side menu, so the logo is its way back home. */}
+          {settings.app === 'youtube' && (
+            <button
+              type="button"
+              onClick={goHome}
+              aria-label="Home"
+              className="fixed top-4 left-5 z-30 hidden cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white lg:block"
+            >
+              <LogoMark className="size-9" />
+            </button>
+          )}
         </>
       ) : (
-        <Landing
+        <Home
           onSearch={search}
           onPick={pick}
           onNotes={() => openPanel({ tab: 'search', notes: true })}
@@ -223,7 +240,7 @@ function FeedWithComments() {
         settings={settings}
         onSettingsChange={changeSettings}
       />
-    </>
+    </SkinProvider>
   )
 }
 

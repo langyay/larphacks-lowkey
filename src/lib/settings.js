@@ -13,6 +13,13 @@ export const FUN_CATEGORIES = [
 
 export const MAX_PER_TYPE = 5
 
+// Which app the feed looks like.
+export const APP_LOOKS = [
+  { id: 'youtube', label: 'YouTube Shorts', hint: 'Red and rounded, with a home page' },
+  { id: 'tiktok', label: 'TikTok', hint: 'For You feed, straight into the videos' },
+  { id: 'instagram', label: 'Instagram Reels', hint: 'Explore grid home and Reels' },
+]
+
 // How the AI writes new flashcards: 0 normal, 1 Lowkey, 2 full brainrot.
 export const BRAINROT_LEVELS = ['Normal', 'Lowkey', 'Full brainrot']
 
@@ -20,6 +27,7 @@ export const DEFAULT_SETTINGS = {
   mix: { cards: 2, learn: 1, fun: 1 },
   funCategories: ['movies', 'gaming'],
   brainrot: 0,
+  app: 'youtube',
 }
 
 const STORAGE_KEY = 'lowkey-settings'
@@ -37,7 +45,8 @@ function clean(saved) {
     ? saved.funCategories.filter((id) => known.includes(id))
     : DEFAULT_SETTINGS.funCategories
   const brainrot = [0, 1, 2].includes(saved?.brainrot) ? saved.brainrot : 0
-  return { mix, funCategories, brainrot }
+  const app = APP_LOOKS.some((a) => a.id === saved?.app) ? saved.app : 'youtube'
+  return { mix, funCategories, brainrot, app }
 }
 
 export function loadSettings() {

@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
-import { LoaderCircle, Search } from 'lucide-react'
+import { ChevronDown, ChevronUp, LoaderCircle, Search } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import ReelCard from '@/components/ReelCard'
 import ShortCard from '@/components/ShortCard'
+import { useSkin } from '@/lib/skin'
 
 // Shuffle a copy of the cards (Fisher-Yates), so Remix gives a new order.
 function shuffle(cards) {
@@ -52,6 +53,7 @@ function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRe
   // Bumped on every Remix so each card starts fresh with a new channel.
   const [round, setRound] = useState(0)
   const feedRef = useRef(null)
+  const skin = useSkin()
 
   const scrollToTop = () => feedRef.current.scrollTo({ top: 0 })
 
@@ -182,8 +184,29 @@ function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRe
         </div>
       )}
 
+      {/* TikTok on desktop: the up and down buttons beside the video. */}
+      {skin === 'tiktok' && (
+        <div className="fixed top-1/2 right-6 z-10 hidden -translate-y-1/2 flex-col gap-4 lg:flex">
+          {[
+            ['Previous video', -1, ChevronUp],
+            ['Next video', 1, ChevronDown],
+          ].map(([label, dir, Icon]) => (
+            <button
+              key={label}
+              type="button"
+              aria-label={label}
+              onClick={() => feedRef.current.scrollBy({ top: dir * feedRef.current.clientHeight, behavior: 'smooth' })}
+              className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white outline-none hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <Icon className="size-6" strokeWidth={2} />
+            </button>
+          ))}
+        </div>
+      )}
+
       <BottomNav
-        onHome={onHome}
+        onSearch={searchAgain}
+        onHome={onHome ?? scrollToTop}
         onCreate={() => onOpenComments({ tab: 'search', notes: true })}
         onProfile={() => onOpenComments({ tab: 'settings' })}
       />
