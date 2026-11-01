@@ -16,6 +16,20 @@ function SpokenText({ text, active }) {
   ))
 }
 
+// Browsers block sound until the first tap, so this pill asks for one.
+function SoundPill({ className }) {
+  return (
+    <button
+      type="button"
+      onClick={unlockSound}
+      className={`flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-3 text-sm font-medium text-white outline-none focus-visible:ring-2 focus-visible:ring-white ${className}`}
+    >
+      <VolumeX className="size-4" />
+      Tap for sound
+    </button>
+  )
+}
+
 // One flashcard dressed up as a Short, posted by a made-up channel.
 // Phone layout (under 1024px wide): everything sits on top of the video.
 // Desktop layout: rounded video in the middle, rail beside it, channel bottom-left.
@@ -129,10 +143,17 @@ function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments })
           )}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
 
+          {/* The POV bar, with room under it for the "Tap for sound" pill so the
+              two never overlap. */}
           {format === 'pov' && (
-            <p className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+3.5rem)] bg-white px-4 py-3 text-center text-[19px] leading-snug font-bold text-black lg:top-[68px]">
-              {channel.pov}
-            </p>
+            <div className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+3.5rem)] z-10 flex flex-col items-start gap-2 lg:top-[68px]">
+              <p className="w-full bg-white px-4 py-3 text-center text-[19px] leading-snug font-bold text-black">
+                {channel.pov}
+              </p>
+              {!clear && narration.status === 'locked' && (
+                <SoundPill className="pointer-events-auto ml-3" />
+              )}
+            </div>
           )}
 
           <button
@@ -175,15 +196,10 @@ function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments })
           {!clear && (
             <>
               {/* Browsers block sound until the first tap, so ask for one. */}
-              {narration.status === 'locked' && (
-                <button
-                  type="button"
-                  onClick={unlockSound}
-                  className={`absolute ${look.frame.promptTop} left-3 z-10 flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-white lg:top-[76px]`}
-                >
-                  <VolumeX className="size-4" />
-                  Tap for sound
-                </button>
+              {narration.status === 'locked' && format !== 'pov' && (
+                <SoundPill
+                  className={`absolute ${look.frame.promptTop} left-3 z-10 lg:top-[76px]`}
+                />
               )}
 
               <look.Inside {...chrome} />
