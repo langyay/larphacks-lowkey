@@ -23,10 +23,10 @@ export async function fetchCards(input, { signal } = {}) {
     })
   } catch (error) {
     if (error.name === 'AbortError') throw error
-    throw new Error("Couldn't reach the Lowkey server.")
+    throw new Error("Couldn't reach the larp&learn server.")
   }
   const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error ?? "Couldn't reach the Lowkey server. Try again in a minute.")
+  if (!res.ok) throw new Error(body.error ?? "Couldn't reach the larp&learn server. Try again in a minute.")
   return body
 }
 
@@ -36,10 +36,10 @@ async function getShorts(path, { signal } = {}) {
     res = await fetch(`${BASE}${path}`, { signal })
   } catch (error) {
     if (error.name === 'AbortError') throw error
-    throw new Error("Couldn't reach the Lowkey server.")
+    throw new Error("Couldn't reach the larp&learn server.")
   }
   const body = await res.json().catch(() => ({}))
   // No message from our server means it isn't running (or is still waking up on Render).
-  if (!res.ok) throw new Error(body.error ?? "Couldn't reach the Lowkey server. Try again in a minute.")
+  if (!res.ok) throw new Error(body.error ?? "Couldn't reach the larp&learn server. Try again in a minute.")
   return body.shorts ?? []
 }

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import CommentsPanel from '@/components/CommentsPanel'
 import Feed from '@/components/Feed'
+import Landing from '@/components/Landing'
+import { LogoMark } from '@/components/Logo'
 import { examples, findExample } from '@/data/examples'
 import { fetchCards, fetchFunShorts, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
@@ -45,6 +47,8 @@ function FeedWithComments() {
     cards: examples[0].cards,
     status: 'ready',
   })
+  // The app opens on the landing page; searching (or any deck swap) shows the feed.
+  const [view, setView] = useState('home')
   const [settings, setSettings] = useState(loadSettings)
   const changeSettings = (next) => {
     setSettings(next)
@@ -53,12 +57,14 @@ function FeedWithComments() {
 
   // Bumped by "Try again" to reload Shorts without touching the cards.
   const [shortsRetry, setShortsRetry] = useState(0)
-  const wantLearn = settings.mix.learn > 0 && deck.topic !== 'My notes'
+  // Shorts only load while the feed is showing, to spare the YouTube quota.
+  const inFeed = view === 'feed'
+  const wantLearn = inFeed && settings.mix.learn > 0 && deck.topic !== 'My notes'
   const learn = useShorts(
     (signal) => (wantLearn ? fetchShorts(deck.topic, { signal }) : null),
     [deck.id, deck.topic, wantLearn, shortsRetry],
   )
-  const funKey = settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
+  const funKey = inFeed && settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
   const fun = useShorts(
     (signal) => (funKey ? fetchFunShorts(funKey.split(','), { signal }) : null),
     [deck.id, funKey, shortsRetry],
@@ -74,6 +80,10 @@ function FeedWithComments() {
   const [recent, setRecent] = useState([])
 
   const close = useCallback(() => setPanel((p) => ({ ...p, open: false })), [])
+  const goHome = () => {
+    setPanel((p) => ({ ...p, open: false }))
+    setView('home')
+  }
 
   // Called by a card's or Short's Comments button, or by 🔍 / ➕ / You.
   const openPanel = ({ tab, card, channel, seed, short, notes = false }) =>
@@ -91,6 +101,7 @@ function FeedWithComments() {
   const loadDeck = (topic, cards, input = null) => {
     const id = deck.id + 1
     setDeck({ id, topic, cards, status: input ? 'loading' : 'ready', input })
+    setView('feed')
     if (topic !== 'My notes') {
       setRecent((list) => [topic, ...list.filter((t) => t !== topic)].slice(0, 5))
     }
@@ -146,16 +157,38 @@ function FeedWithComments() {
 
   return (
     <>
-      <Feed
-        key={deck.id}
-        deck={deck}
-        learn={learn}
-        fun={fun}
-        pattern={settings.mix}
-        onOpenComments={openPanel}
-        onRetry={() => setShortsRetry((n) => n + 1)}
-        onRetryCards={retryCards}
-      />
+      {inFeed ? (
+        <>
+          <Feed
+            key={deck.id}
+            deck={deck}
+            learn={learn}
+            fun={fun}
+            pattern={settings.mix}
+            onHome={goHome}
+            onOpenComments={openPanel}
+            onRetry={() => setShortsRetry((n) => n + 1)}
+            onRetryCards={retryCards}
+          />
+          {/* Desktop has no bottom bar, so the logo is its way back home. */}
+          <button
+            type="button"
+            onClick={goHome}
+            aria-label="Home"
+            className="fixed top-4 left-5 z-30 hidden cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white lg:block"
+          >
+            <LogoMark className="size-9" />
+          </button>
+        </>
+      ) : (
+        <Landing
+          onSearch={search}
+          onPick={pick}
+          onNotes={() => openPanel({ tab: 'search', notes: true })}
+          onSettings={() => openPanel({ tab: 'settings' })}
+          onFeed={() => setView('feed')}
+        />
+      )}
       <CommentsPanel
         open={panel.open}
         onClose={close}

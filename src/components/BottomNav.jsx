@@ -16,14 +16,20 @@ function NavButton({ label, onClick, active, children }) {
   )
 }
 
-function BottomNav({ onHome, onCreate, onProfile }) {
+function BottomNav({ current = 'shorts', onHome, onShorts, onCreate, onProfile }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-[500px] bg-[#0f0f0f] pb-[env(safe-area-inset-bottom)] lg:hidden">
-      <NavButton label="Home" onClick={onHome}>
-        <House className="size-6" strokeWidth={1.75} />
+      <NavButton label="Home" onClick={onHome} active={current === 'home'}>
+        <House
+          className={`size-6 ${current === 'home' ? 'fill-white [&>path]:stroke-[#0f0f0f]' : ''}`}
+          strokeWidth={1.75}
+        />
       </NavButton>
-      <NavButton label="Shorts" active>
-        <SquarePlay className="size-6 fill-white [&>path]:stroke-[#0f0f0f]" strokeWidth={1.75} />
+      <NavButton label="Shorts" onClick={onShorts} active={current === 'shorts'}>
+        <SquarePlay
+          className={`size-6 ${current === 'shorts' ? 'fill-white [&>path]:stroke-[#0f0f0f]' : ''}`}
+          strokeWidth={1.75}
+        />
       </NavButton>
       <NavButton label="Create: make a feed from your notes" onClick={onCreate}>
         <CirclePlus className="size-7" strokeWidth={1.5} />

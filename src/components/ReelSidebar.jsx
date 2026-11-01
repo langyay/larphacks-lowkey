@@ -72,7 +72,7 @@ function ReelSidebar({
 
   const share = async () => {
     const url = shareUrl ?? location.href
-    const data = { title: 'Lowkey', text: shareText, url }
+    const data = { title: 'larp&learn', text: shareText, url }
     try {
       if (navigator.share) {
         await navigator.share(data)

@@ -44,7 +44,7 @@ function FeedMessage({ children }) {
 
 // The scrolling feed. CSS scroll-snap makes each swipe land on exactly one Short.
 // On phones it stops above the bottom nav; on desktop it fills the window.
-function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry, onRetryCards }) {
+function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRetryCards }) {
   // Remix keeps its own shuffled copy; cards that arrive later (from Gemini)
   // replace it, since they're a different list.
   const [shuffled, setShuffled] = useState(null)
@@ -183,7 +183,7 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry, onRetryCards
       )}
 
       <BottomNav
-        onHome={scrollToTop}
+        onHome={onHome}
         onCreate={() => onOpenComments({ tab: 'search', notes: true })}
         onProfile={() => onOpenComments({ tab: 'settings' })}
       />
