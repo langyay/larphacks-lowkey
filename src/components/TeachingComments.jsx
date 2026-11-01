@@ -143,7 +143,8 @@ function TeachingComments({ card, channel, seed, ownComments }) {
     const share = ((person.likes % 40) + 1) / 1000
     return { ...person, likes: Math.max(1, Math.round(channel.likes * share)) }
   })
-  const hasTeaching = Boolean(card.pinned)
+  // Cards from the note splitter (or an incomplete AI reply) have no viewer comments.
+  const hasTeaching = Boolean(card.comments?.length && card.ask)
 
   return (
     <ul className="py-1">
@@ -186,8 +187,7 @@ function TeachingComments({ card, channel, seed, ownComments }) {
       )}
       {!hasTeaching && ownComments.length === 0 && (
         <li className="px-4 py-6 text-center text-sm text-white/60">
-          No one has explained this card yet. Teaching comments for your own
-          notes arrive with the AI step.
+          No one else has explained this card yet. Be the first to comment.
         </li>
       )}
     </ul>

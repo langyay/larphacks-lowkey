@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import CommentsPanel from '@/components/CommentsPanel'
 import Feed from '@/components/Feed'
 import { examples, findExample } from '@/data/examples'
-import { fetchFunShorts, fetchShorts } from '@/lib/api'
+import { fetchCards, fetchFunShorts, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
 import { loadSettings, saveSettings } from '@/lib/settings'
 
@@ -38,10 +38,12 @@ function useShorts(load, deps) {
 // - whether the panel is open, on which tab, and for which card or Short
 // - recent searches (while the app is open)
 function FeedWithComments() {
+  // status: 'ready', or 'loading' while Gemini writes the cards, or 'error'.
   const [deck, setDeck] = useState({
     id: 0,
     topic: examples[0].topic,
     cards: examples[0].cards,
+    status: 'ready',
   })
   const [settings, setSettings] = useState(loadSettings)
   const changeSettings = (next) => {
@@ -49,15 +51,17 @@ function FeedWithComments() {
     saveSettings(next)
   }
 
+  // Bumped by "Try again" to reload Shorts without touching the cards.
+  const [shortsRetry, setShortsRetry] = useState(0)
   const wantLearn = settings.mix.learn > 0 && deck.topic !== 'My notes'
   const learn = useShorts(
     (signal) => (wantLearn ? fetchShorts(deck.topic, { signal }) : null),
-    [deck.id, deck.topic, wantLearn],
+    [deck.id, deck.topic, wantLearn, shortsRetry],
   )
   const funKey = settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
   const fun = useShorts(
     (signal) => (funKey ? fetchFunShorts(funKey.split(','), { signal }) : null),
-    [deck.id, funKey],
+    [deck.id, funKey, shortsRetry],
   )
 
   const [panel, setPanel] = useState({
@@ -82,18 +86,55 @@ function FeedWithComments() {
     }))
 
   // Swap in a new deck. The Feed remounts (new key), so it starts at the top.
-  const loadDeck = (topic, cards) => {
-    setDeck((d) => ({ id: d.id + 1, topic, cards }))
-    setRecent((list) => [topic, ...list.filter((t) => t !== topic)].slice(0, 5))
+  // `input` is what Gemini is asked for ({ topic } or { notes }); while it
+  // works, the deck is 'loading' and the feed shows Shorts in the meantime.
+  const loadDeck = (topic, cards, input = null) => {
+    const id = deck.id + 1
+    setDeck({ id, topic, cards, status: input ? 'loading' : 'ready', input })
+    if (topic !== 'My notes') {
+      setRecent((list) => [topic, ...list.filter((t) => t !== topic)].slice(0, 5))
+    }
     setPanel((p) => ({ ...p, open: false, target: null }))
+    if (input) generate(id, input)
+  }
+
+  // Ask Gemini for cards. If it fails on notes, fall back to the note splitter.
+  // Results for an older deck (the person searched again meanwhile) are ignored.
+  const generate = (id, input) => {
+    const update = (changes) =>
+      setDeck((d) => (d.id === id ? { ...d, ...changes } : d))
+    fetchCards(input)
+      .then((result) =>
+        update({
+          status: 'ready',
+          cards: result.cards,
+          // For notes, Gemini names the topic (that also finds better Shorts).
+          ...(input.notes ? { topic: result.topic } : {}),
+        }),
+      )
+      .catch((error) => {
+        const backup = input.notes ? makeCards(input.notes) : []
+        if (backup.length > 0) {
+          const guessed = guessTopic(input.notes)
+          const topic = guessed === 'My notes' ? (findExample(input.notes)?.topic ?? guessed) : guessed
+          update({ status: 'ready', cards: backup, topic })
+        } else {
+          update({ status: 'error', error: error.message })
+        }
+      })
+  }
+
+  const retryCards = () => {
+    setDeck((d) => ({ ...d, status: 'loading', error: undefined }))
+    generate(deck.id, deck.input)
   }
 
   // Each handler returns a message to show in the panel, or nothing if it worked.
   const search = (text) => {
     const example = findExample(text)
     if (example) return loadDeck(example.topic, example.cards)
-    // No flashcards for this topic until the AI step, so it's a feed of real Shorts.
-    loadDeck(text, [])
+    // Any other topic: Gemini writes the cards while real Shorts load.
+    loadDeck(text, [], { topic: text })
   }
 
   const pick = (id) => {
@@ -101,15 +142,7 @@ function FeedWithComments() {
     loadDeck(example.topic, example.cards)
   }
 
-  const fromNotes = (notes) => {
-    const cards = makeCards(notes)
-    if (cards.length === 0) {
-      return "Couldn't find any facts to turn into cards. Try one fact per line, like \"catalyst: speeds up a reaction\" or \"pressure up -> fewer gas moles\"."
-    }
-    const guessed = guessTopic(notes)
-    const topic = guessed === 'My notes' ? (findExample(notes)?.topic ?? guessed) : guessed
-    loadDeck(topic, cards)
-  }
+  const fromNotes = (notes) => loadDeck('My notes', [], { notes })
 
   return (
     <>
@@ -120,7 +153,8 @@ function FeedWithComments() {
         fun={fun}
         pattern={settings.mix}
         onOpenComments={openPanel}
-        onRetry={() => setDeck((d) => ({ ...d, id: d.id + 1 }))}
+        onRetry={() => setShortsRetry((n) => n + 1)}
+        onRetryCards={retryCards}
       />
       <CommentsPanel
         open={panel.open}

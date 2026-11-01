@@ -44,8 +44,11 @@ function FeedMessage({ children }) {
 
 // The scrolling feed. CSS scroll-snap makes each swipe land on exactly one Short.
 // On phones it stops above the bottom nav; on desktop it fills the window.
-function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry }) {
-  const [cards, setCards] = useState(deck.cards)
+function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry, onRetryCards }) {
+  // Remix keeps its own shuffled copy; cards that arrive later (from Gemini)
+  // replace it, since they're a different list.
+  const [shuffled, setShuffled] = useState(null)
+  const cards = shuffled?.from === deck.cards ? shuffled.cards : deck.cards
   // Bumped on every Remix so each card starts fresh with a new channel.
   const [round, setRound] = useState(0)
   const feedRef = useRef(null)
@@ -53,13 +56,14 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry }) {
   const scrollToTop = () => feedRef.current.scrollTo({ top: 0 })
 
   const remix = () => {
-    setCards(shuffle(cards))
+    setShuffled({ from: deck.cards, cards: shuffle(deck.cards) })
     setRound((r) => r + 1)
     scrollToTop()
   }
 
   const items = mix(cards, learn.items, fun.items, pattern)
-  const loading = learn.status === 'loading' || fun.status === 'loading'
+  const makingCards = deck.status === 'loading'
+  const loading = makingCards || learn.status === 'loading' || fun.status === 'loading'
   const failed = learn.status === 'error' || fun.status === 'error'
   const searchAgain = () => onOpenComments({ tab: 'search' })
 
@@ -97,7 +101,16 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry }) {
         {items.length === 0 && loading && (
           <FeedMessage>
             <LoaderCircle className="size-10 animate-spin text-white/70 motion-reduce:animate-none" />
-            <p className="mt-4 text-lg font-medium">Finding Shorts about {deck.topic}…</p>
+            <p className="mt-4 text-lg font-medium">
+              {makingCards
+                ? deck.topic === 'My notes'
+                  ? 'Turning your notes into flashcards…'
+                  : `Making flashcards about ${deck.topic}…`
+                : `Finding Shorts about ${deck.topic}…`}
+            </p>
+            {makingCards && (
+              <p className="mt-2 text-sm text-white/60">This takes about 20 seconds.</p>
+            )}
           </FeedMessage>
         )}
 
@@ -105,12 +118,22 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry }) {
           <FeedMessage>
             <p className="text-xl font-bold">Nothing for “{deck.topic}” yet</p>
             <p className="mt-2 text-base text-white/70">
-              {learn.error ??
+              {deck.error ??
+                learn.error ??
                 fun.error ??
                 'Nothing came back with your current settings. Try different words, a quick pick, or more Shorts in Settings.'}
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              {failed && (
+              {deck.status === 'error' && (
+                <button
+                  type="button"
+                  onClick={onRetryCards}
+                  className="flex h-10 cursor-pointer items-center rounded-full bg-[#f1f1f1] px-5 text-sm font-medium text-[#0f0f0f] outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  Try again
+                </button>
+              )}
+              {failed && deck.status !== 'error' && (
                 <button
                   type="button"
                   onClick={onRetry}
@@ -131,6 +154,34 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry }) {
           </FeedMessage>
         )}
       </div>
+
+      {/* While Shorts are already showing: a small pill at the top saying the
+          flashcards are on their way, or that they failed (with a retry). */}
+      {items.length > 0 && (makingCards || deck.status === 'error') && (
+        <div
+          role="status"
+          className="fixed top-3 left-1/2 z-30 flex max-w-[70vw] -translate-x-1/2 items-center gap-2 rounded-full bg-black/75 py-1.5 pr-1.5 pl-3 text-sm font-medium text-white lg:max-w-md"
+        >
+          {makingCards ? (
+            <>
+              <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+              <span className="truncate pr-2">Making your flashcards…</span>
+            </>
+          ) : (
+            <>
+              <span className="truncate">{deck.error}</span>
+              <button
+                type="button"
+                onClick={onRetryCards}
+                className="shrink-0 cursor-pointer rounded-full bg-white/15 px-3 py-1 outline-none hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Try again
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       <BottomNav
         onHome={scrollToTop}
         onCreate={() => onOpenComments({ tab: 'search', notes: true })}

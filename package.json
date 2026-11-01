@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "postinstall": "npm install --prefix server --no-audit --no-fund",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"

@@ -10,6 +10,26 @@ export const fetchShorts = (topic, options) =>
 export const fetchFunShorts = (categories, options) =>
   getShorts(`/api/fun?categories=${encodeURIComponent(categories.join(','))}`, options)
 
+// Flashcards written by Gemini, from a topic ({ topic }) or from notes ({ notes }).
+// Returns { topic, cards }. Throws with a friendly message on failure.
+export async function fetchCards(input, { signal } = {}) {
+  let res
+  try {
+    res = await fetch(`${BASE}/api/cards`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+      signal,
+    })
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new Error("Couldn't reach the Lowkey server.")
+  }
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error ?? "Couldn't reach the Lowkey server. Try again in a minute.")
+  return body
+}
+
 async function getShorts(path, { signal } = {}) {
   let res
   try {
