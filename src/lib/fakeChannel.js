@@ -75,6 +75,21 @@ export function makeChannel(seed) {
   }
 }
 
+const agos = ['3h ago', '9h ago', '1d ago', '2d ago', '4d ago', '1w ago', '2w ago', '1mo ago']
+
+// A made-up viewer for the comments: handle, avatar, how long ago, likes.
+export function makeCommenter(seed) {
+  const rand = seededRandom(seed)
+  const handle = makeHandle(rand)
+  return {
+    handle,
+    initial: handle[0].toUpperCase(),
+    tone: pick(rand, tones),
+    ago: pick(rand, agos),
+    likes: Math.round(10 ** (0.5 + rand() * 3.8)),
+  }
+}
+
 // Write a count the way YouTube does: 847, 1.2K, 12K, 1.2M.
 // The phone app writes thousands with a small k ("61k").
 export function formatCount(n, { smallK = false } = {}) {

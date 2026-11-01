@@ -118,7 +118,8 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
     onDislike: dislike,
     saved,
     onSave: () => setSaved((s) => !s),
-    onOpenComments,
+    // The panel needs to know which card it's explaining.
+    onOpenComments: () => onOpenComments({ tab: 'comments', card, channel, seed }),
     onRemix,
   }
   const title = `${topic} #study #exams`
@@ -178,7 +179,7 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
               <div className="absolute top-0 right-0 flex pt-[max(6px,env(safe-area-inset-top))] pr-1.5 lg:hidden">
                 <button
                   type="button"
-                  onClick={onOpenComments}
+                  onClick={() => onOpenComments({ tab: 'search' })}
                   aria-label="Search a topic"
                   className="flex size-11 cursor-pointer items-center justify-center drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]"
                 >

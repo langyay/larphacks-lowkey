@@ -49,7 +49,11 @@ function Feed({ deck, onOpenComments }) {
           )
         })}
       </div>
-      <BottomNav onHome={scrollToTop} onCreate={onOpenComments} />
+      <BottomNav
+        onHome={scrollToTop}
+        onCreate={() => onOpenComments({ tab: 'search', notes: true })}
+        onProfile={() => onOpenComments({ tab: 'search' })}
+      />
     </>
   )
 }

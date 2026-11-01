@@ -16,7 +16,7 @@ function NavButton({ label, onClick, active, children }) {
   )
 }
 
-function BottomNav({ onHome, onCreate }) {
+function BottomNav({ onHome, onCreate, onProfile }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-[500px] bg-[#0f0f0f] pb-[env(safe-area-inset-bottom)] lg:hidden">
       <NavButton label="Home" onClick={onHome}>
@@ -28,7 +28,7 @@ function BottomNav({ onHome, onCreate }) {
       <NavButton label="Create: make a feed from your notes" onClick={onCreate}>
         <CirclePlus className="size-7" strokeWidth={1.5} />
       </NavButton>
-      <NavButton label="You" onClick={onCreate}>
+      <NavButton label="You: search a topic" onClick={onProfile}>
         <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold">
           L
         </span>
