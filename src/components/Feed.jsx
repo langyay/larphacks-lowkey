@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import BottomNav from '@/components/BottomNav'
 import ReelCard from '@/components/ReelCard'
 
 // Shuffle a copy of the cards (Fisher-Yates), so Remix gives a new order.
@@ -11,32 +12,45 @@ function shuffle(cards) {
   return copy
 }
 
-// The scrolling column. CSS scroll-snap makes each swipe land on exactly one card.
-function Feed({ deck }) {
+// The scrolling feed. CSS scroll-snap makes each swipe land on exactly one Short.
+// On phones it stops above the bottom nav; on desktop it fills the window.
+function Feed({ deck, onOpenComments }) {
   const [cards, setCards] = useState(deck.cards)
-  // Bumped on every Remix so each card starts fresh (question side up).
+  // Bumped on every Remix so each card starts fresh with a new channel.
   const [round, setRound] = useState(0)
+  const feedRef = useRef(null)
 
-  const remix = (e) => {
+  const scrollToTop = () => feedRef.current.scrollTo({ top: 0 })
+
+  const remix = () => {
     setCards(shuffle(cards))
     setRound((r) => r + 1)
-    e.currentTarget.closest('[data-feed]').scrollTo({ top: 0 })
+    scrollToTop()
   }
 
   return (
-    <div
-      data-feed
-      className="mx-auto h-dvh max-w-[480px] snap-y snap-mandatory overflow-y-scroll border-x border-border"
-    >
-      {cards.map((card) => (
-        <ReelCard
-          key={`${round}-${card.question}`}
-          card={card}
-          topic={deck.topic}
-          onRemix={remix}
-        />
-      ))}
-    </div>
+    <>
+      <div
+        ref={feedRef}
+        className="h-[calc(100dvh-var(--nav-h))] snap-y snap-mandatory overflow-y-scroll bg-black [scrollbar-width:none] lg:h-dvh lg:bg-[#0f0f0f]"
+      >
+        {cards.map((card) => {
+          // The seed picks the made-up channel and counts; Remix gives new ones.
+          const seed = `${round}-${card.question}`
+          return (
+            <ReelCard
+              key={seed}
+              seed={seed}
+              card={card}
+              topic={deck.topic}
+              onRemix={remix}
+              onOpenComments={onOpenComments}
+            />
+          )
+        })}
+      </div>
+      <BottomNav onHome={scrollToTop} onCreate={onOpenComments} />
+    </>
   )
 }
 

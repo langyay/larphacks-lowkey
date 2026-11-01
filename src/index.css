@@ -131,3 +131,32 @@
     @apply bg-background text-foreground;
     }
 }
+
+/* Height of the phone bottom nav (Home / Shorts / + / You). Desktop has none. */
+:root {
+    --nav-h: calc(52px + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+    :root {
+        --nav-h: 0px;
+    }
+}
+
+/* Burned-in Shorts caption: heavy white text with a thick black outline. */
+.shorts-caption {
+    font-weight: 900;
+    color: white;
+    -webkit-text-stroke: 7px black;
+    paint-order: stroke fill;
+    text-shadow: 0 3px 6px rgb(0 0 0 / 0.35);
+}
+
+/* The thin progress line at the bottom of each Short. */
+@keyframes shorts-progress {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
+}

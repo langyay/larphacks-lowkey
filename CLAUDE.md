@@ -52,6 +52,7 @@ I'm a beginner: new to the terminal, Git and JavaScript.
 ### Don't look AI-generated
 Never use: purple/blue gradients or gradient text, glassmorphism, glows or blurred background blobs, emoji or sparkle icons in the UI, generic hype copy ("Revolutionize your…", "AI-powered"), a hero + three feature cards landing page, fake stats or testimonials, fade/scale animations on everything, Inter with default Tailwind greys, or placeholder text.
 Instead: flat surfaces with thin borders, a tinted neutral palette, left-aligned body text, clear size/weight hierarchy, plain specific copy that says what the app does, and one purposeful animation. Drop users straight into the working tool rather than a marketing page.
+Exception: the made-up channel names, like counts and comment counts on flashcards are part of the YouTube Shorts costume, not fake stats. Keep them invented (no real creators).
 
 ## Priorities
 
