@@ -1,5 +1,4 @@
 import {
-  Camera,
   Ellipsis,
   EyeOff,
   Heart,
@@ -79,15 +78,15 @@ export function Inside(c) {
 
   return (
     <>
-      {/* Phone: "Reels" and "Friends" tabs on the left, the camera on the right,
-          like the real app. The camera secretly switches focus mode on. */}
+      {/* Phone: "Reels" and "Friends" tabs on the left, the focus mode (eye)
+          button on the right. */}
       <div className={`absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/35 to-transparent pt-[max(8px,env(safe-area-inset-top))] pr-1.5 pb-6 pl-4 lg:hidden`}>
         <div className="flex items-center gap-4 text-[22px] font-bold [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
           <span className="text-white">Reels</span>
           <span className="text-[17px] font-semibold text-white/60">Friends</span>
         </div>
-        <button type="button" onClick={onCover} aria-label="Camera (focus mode)" className={`${cornerIcon} ${shadow}`}>
-          <Camera className="size-7" strokeWidth={1.75} />
+        <button type="button" onClick={onCover} aria-label="Someone's looking: show a decoy" className={`${cornerIcon} ${shadow}`}>
+          <EyeOff className="size-6" strokeWidth={1.75} />
         </button>
       </div>
 

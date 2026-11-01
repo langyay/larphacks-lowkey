@@ -152,6 +152,15 @@
 }
 
 /* The thin progress line at the bottom of each Short. */
+@keyframes generating-bar {
+    from {
+        width: 4%;
+    }
+    to {
+        width: 92%;
+    }
+}
+
 @keyframes shorts-progress {
     from {
         width: 0%;

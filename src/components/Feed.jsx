@@ -104,14 +104,21 @@ function Feed({ deck, learn, fun, pattern, plain, onHome, onOpenComments, onRetr
           )
         })}
 
-        {/* Making flashcards: one blank black screen, like a video still
-            buffering. Nothing to scroll, only a small spinner. */}
+        {/* Making flashcards: a black screen with a loading bar and a label.
+            Nothing to scroll until the cards arrive. */}
         {makingCards && (
           <section
             aria-busy="true"
-            className="flex h-[calc(100dvh-var(--nav-h))] items-center justify-center bg-black lg:h-dvh"
+            className="flex h-[calc(100dvh-var(--nav-h))] flex-col items-center justify-center gap-4 bg-black px-6 text-white lg:h-dvh"
           >
-            <LoaderCircle className="size-9 animate-spin text-white/40 motion-reduce:animate-none" />
+            <p className="text-lg font-medium">Generating flashcards</p>
+            <div
+              role="progressbar"
+              aria-label="Generating flashcards"
+              className="h-1.5 w-60 max-w-full overflow-hidden rounded-full bg-white/15"
+            >
+              <div className="h-full w-[60%] animate-[generating-bar_14s_cubic-bezier(0.1,0.6,0.3,1)_forwards] rounded-full bg-primary motion-reduce:animate-none" />
+            </div>
             <span className="sr-only">
               {deck.topic === 'My notes' ? 'Turning your notes into flashcards' : `Making flashcards about ${deck.topic}`}
             </span>
