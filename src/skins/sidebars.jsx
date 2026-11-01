@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Plus,
   Search,
+  Settings,
   Send,
   SquarePlay,
   SquarePlus,
@@ -17,7 +18,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import Avatar from '@/components/Avatar'
-import { LogoMark, Wordmark } from '@/components/Logo'
+import { LogoMark } from '@/components/Logo'
 import { makeChannel } from '@/lib/fakeChannel'
 import { useSkin } from '@/lib/skin'
 
@@ -28,9 +29,9 @@ import { useSkin } from '@/lib/skin'
 // Made-up accounts for TikTok's "Following accounts" list.
 const following = Array.from({ length: 5 }, (_, i) => makeChannel(`following-${i}`))
 
-// Only the search bar does something; it covers what Explore, Upload and
-// Profile would do, so those are just for the look like the rest.
-function TikTokSidebar({ onSearch }) {
+// Only the bar at the top does something (it opens Settings, which also has
+// the search tab), so Explore, Upload and Profile are just for the look.
+function TikTokSidebar({ onSettings }) {
   const items = [
     { label: 'For You', icon: House, active: true },
     { label: 'Explore', icon: Compass },
@@ -66,18 +67,19 @@ function TikTokSidebar({ onSearch }) {
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[72px] flex-col overflow-hidden bg-black px-3 py-4 text-white lg:flex xl:w-[280px]">
+      {/* Just the logo: the app name would give the game away. */}
       <div className="flex items-center gap-2 px-1 pb-4">
         <LogoMark className="size-8 shrink-0" />
-        <Wordmark className="hidden text-xl xl:inline" />
       </div>
+      {/* Looks like TikTok's search bar; it opens Settings (search topic is a tab there too). */}
       <button
         type="button"
-        onClick={onSearch}
-        aria-label="Search"
+        onClick={onSettings}
+        aria-label="Settings"
         className="mb-3 flex h-11 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-white/10 px-0 text-white/60 outline-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white xl:justify-start xl:px-4"
       >
-        <Search className="size-5 shrink-0" />
-        <span className="hidden xl:inline">Search</span>
+        <Settings className="size-5 shrink-0" />
+        <span className="hidden xl:inline">Settings</span>
       </button>
       <nav className="flex flex-col gap-0.5">{items.map(row)}</nav>
       <div className="mt-5 hidden min-h-0 flex-1 overflow-hidden border-t border-white/10 pt-4 xl:block">
@@ -143,9 +145,9 @@ function InstagramSidebar({ current, onHome, onFeed, onCreate, onProfile }) {
 }
 
 // `current` is 'feed' or 'home' so Instagram's rail can highlight where you are.
-function DesktopSidebar({ current, onHome, onFeed, onSearch, onCreate, onProfile }) {
+function DesktopSidebar({ current, onHome, onFeed, onCreate, onProfile }) {
   const skin = useSkin()
-  if (skin === 'tiktok') return <TikTokSidebar onSearch={onSearch} />
+  if (skin === 'tiktok') return <TikTokSidebar onSettings={onProfile} />
   if (skin === 'instagram')
     return <InstagramSidebar current={current} onHome={onHome} onFeed={onFeed} onCreate={onCreate} onProfile={onProfile} />
   return null

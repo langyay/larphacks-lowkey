@@ -21,10 +21,11 @@ function SpokenText({ text, active }) {
 // Desktop layout: rounded video in the middle, rail beside it, channel bottom-left.
 // The buttons, creator line and progress bar come from the chosen look (YouTube,
 // TikTok or Instagram, see src/skins). Tap the video to flip question/answer.
-function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
+// `plain` (actual study mode): no background video and no meme bar, just the caption.
+function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments }) {
   const look = useLook()
   const channel = useMemo(() => makeChannel(seed), [seed])
-  const format = channel.format
+  const format = plain ? 'full' : channel.format
   const [revealed, setRevealed] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [liked, setLiked] = useState(false)
@@ -125,12 +126,18 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
         >
           {/* Meme background: the gameplay video fills the whole card, with the
               question as a caption on top (dimmed a little so text reads). */}
-          <MemeBackground
-            kind={channel.background}
-            playing={inView && !paused}
-            className="absolute inset-0 size-full"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-black/15" />
+          {plain ? (
+            <div className="absolute inset-0 bg-[#141414]" />
+          ) : (
+            <>
+              <MemeBackground
+                kind={channel.background}
+                playing={inView && !paused}
+                className="absolute inset-0 size-full"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-black/15" />
+            </>
+          )}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
 
           {format === 'pov' && (

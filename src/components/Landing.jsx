@@ -8,6 +8,7 @@ import { makeChannel } from '@/lib/fakeChannel'
 
 // Per ready-made deck: a subject chip and the colour of its "thumbnail".
 const subjects = {
+  econ: { chip: 'Economics', colour: 'oklch(0.36 0.07 150)' },
   chem: { chip: 'Chemistry', colour: 'oklch(0.34 0.05 235)' },
   wwi: { chip: 'History', colour: 'oklch(0.35 0.08 30)' },
   french: { chip: 'French', colour: 'oklch(0.34 0.06 160)' },

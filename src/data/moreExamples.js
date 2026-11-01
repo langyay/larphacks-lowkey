@@ -386,4 +386,102 @@ const unitedNations = {
   ],
 }
 
+// The deck the app opens with: a broad review that suits most students.
+export const economics = {
+  id: 'econ',
+  label: 'AP Econ: review',
+  topic: 'AP Economics review',
+  keywords: ['econ', 'ap macro', 'ap micro', 'supply and demand', 'macroeconomics', 'microeconomics'],
+  cards: [
+    card(
+      'What is opportunity cost?',
+      'The value of the next best thing you give up when you make a choice.',
+      "Every choice has a cost, even when no money changes hands. If you spend Saturday studying instead of working a shift, the opportunity cost is the pay you didn't earn.",
+      [
+        "It's the thing you didn't pick. Netflix tonight costs you the sleep you could've had.",
+        'Opportunity cost = the "next best" option only, not every option you skipped.',
+        "Common mistake: adding up ALL the alternatives. It's only the single best one you gave up.",
+      ],
+      ['Does it have to be money?', 'No. It can be time, effort or anything else of value you give up.'],
+    ),
+    card(
+      'What does the law of demand say?',
+      'When the price of a good rises, the quantity demanded falls (all else equal).',
+      "Higher prices make people buy less, so the demand curve slopes downward. 'All else equal' (ceteris paribus) means only the price is changing.",
+      [
+        'Concert tickets go from $50 to $300 and suddenly way fewer people want to go.',
+        'Price UP, quantity DOWN. They move in opposite directions, like a seesaw.',
+        "It's quantity DEMANDED that changes, not demand itself. That difference shows up on the AP exam a lot.",
+      ],
+      ['Why does the curve slope down?', 'People substitute cheaper goods and their money buys less, so they buy less of the pricier good.'],
+    ),
+    card(
+      'A price change vs a change in income: which shifts the demand curve?',
+      'Income shifts the whole curve. A price change only moves you along the curve.',
+      'Changing the good\'s own price is a movement along the same curve. Anything else that affects buying, like income, tastes, or prices of related goods, shifts the whole curve left or right.',
+      [
+        'Price = sliding along the line. Everything else = picking up the line and moving it.',
+        'Remember TRIBE for demand shifters: Tastes, Related goods, Income, Buyers, Expectations.',
+        'Classic trap: "the price fell, so demand increased." No: quantity demanded increased.',
+      ],
+      ['Which way does it shift if income rises?', 'Right for normal goods, left for inferior goods like instant noodles.'],
+    ),
+    card(
+      'What does it mean if demand is price inelastic?',
+      'Quantity demanded barely changes when the price changes.',
+      'Inelastic goods are necessities with few substitutes, like insulin or gasoline in the short run. Elasticity is less than 1, so a price rise brings in more total revenue.',
+      [
+        "People need it no matter what, so they keep buying even when it's pricier.",
+        'Inelastic = Insensitive. Elastic = Easily stretched by price changes.',
+        'Real life: gas prices jump, but most people still have to drive to work that week.',
+      ],
+      ['What makes a good elastic?', 'Lots of substitutes, being a luxury, or taking up a big share of your budget.'],
+    ),
+    card(
+      'What happens when a price ceiling is set below the equilibrium price?',
+      'A shortage: quantity demanded is greater than quantity supplied.',
+      'A price ceiling is a legal maximum price. Set below equilibrium, it makes buyers want more while sellers offer less, so the market runs short.',
+      [
+        'Rent control is the usual example: cheap rent, but far fewer apartments available.',
+        'Ceiling BELOW equilibrium = shortage. Floor ABOVE equilibrium = surplus.',
+        "A ceiling ABOVE equilibrium does nothing at all. It only matters when it's below.",
+      ],
+      ['Is a minimum wage a ceiling or a floor?', 'A floor, since it sets the lowest legal price for labour. Above equilibrium it can cause a surplus of workers.'],
+    ),
+    card(
+      'What is the formula for GDP (expenditure approach)?',
+      'GDP = C + I + G + (X − M): consumption, investment, government spending and net exports.',
+      'GDP is the market value of all final goods and services produced in a country in a year. Adding up every type of spending gives the same total.',
+      [
+        "It's everything everyone in the country spends on new stuff, added together.",
+        'C + I + G + NX. "Consumers Invest in Government Nachos eXtra" is how I remember it.',
+        "Used goods and stock purchases don't count. Only NEW final goods and services do.",
+      ],
+      ['Do transfer payments like welfare count in G?', "No. They're not buying a good or service, just moving money around."],
+    ),
+    card(
+      'What is the difference between fiscal and monetary policy?',
+      'Fiscal policy is government spending and taxes. Monetary policy is the central bank changing the money supply and interest rates.',
+      'Congress and the President run fiscal policy. The central bank (the Fed in the US) runs monetary policy. Both can push the economy out of a recession or cool down inflation.',
+      [
+        'Fiscal = the government\'s wallet. Monetary = the central bank\'s money printer and interest rates.',
+        'Fiscal → Federal government. Monetary → Money supply.',
+        'Common mix-up: the Fed does NOT set taxes. That is fiscal, decided by the government.',
+      ],
+      ['How does the Fed fight a recession?', 'It lowers interest rates (for example by buying bonds) so borrowing and spending go up.'],
+    ),
+    card(
+      'What is comparative advantage?',
+      'Being able to produce something at a lower opportunity cost than someone else.',
+      'Even if one country is better at making everything (absolute advantage), both gain from trade when each specialises in what it gives up the least to make.',
+      [
+        "You might be faster at both cooking and cleaning, but if your roommate gives up less by cleaning, you should cook.",
+        'Comparative = Compare opportunity costs. Absolute = who makes MORE.',
+        "Mistake: thinking the better producer shouldn't trade. Trade still helps both sides.",
+      ],
+      ['How do you find it on the AP exam?', 'Work out each side\'s opportunity cost per unit; the lower one has the comparative advantage.'],
+    ),
+  ],
+}
+
 export const moreExamples = [sat, cyber, derivatives, trig, unitedNations]

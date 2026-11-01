@@ -65,12 +65,16 @@ function FeedWithComments() {
   const [shortsRetry, setShortsRetry] = useState(0)
   // Shorts only load while the feed is showing, to spare the YouTube quota.
   const inFeed = settings.app === 'tiktok' || view === 'feed'
-  const wantLearn = inFeed && settings.mix.learn > 0 && deck.topic !== 'My notes'
+  // Actual study mode: flashcards only, so no Shorts are fetched at all.
+  const study = settings.studyMode
+  const pattern = study ? { cards: 1, learn: 0, fun: 0 } : settings.mix
+  const wantLearn = inFeed && !study && settings.mix.learn > 0 && deck.topic !== 'My notes'
   const learn = useShorts(
     (signal) => (wantLearn ? fetchShorts(deck.topic, { signal }) : null),
     [deck.id, deck.topic, wantLearn, shortsRetry],
   )
-  const funKey = inFeed && settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
+  const funKey =
+    inFeed && !study && settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
   const fun = useShorts(
     (signal) => (funKey ? fetchFunShorts(funKey.split(','), { signal }) : null),
     [deck.id, funKey, shortsRetry],
@@ -189,7 +193,6 @@ function FeedWithComments() {
         current={inFeed ? 'feed' : 'home'}
         onHome={covered ? undefined : goHome}
         onFeed={covered ? undefined : () => setView('feed')}
-        onSearch={covered ? undefined : () => openPanel({ tab: 'search' })}
         onCreate={covered ? undefined : () => openPanel({ tab: 'search', notes: true })}
         onProfile={covered ? undefined : () => openPanel({ tab: 'settings' })}
       />
@@ -203,7 +206,8 @@ function FeedWithComments() {
             deck={deck}
             learn={learn}
             fun={fun}
-            pattern={settings.mix}
+            pattern={pattern}
+            plain={study}
             onHome={settings.app === 'tiktok' ? undefined : goHome}
             onOpenComments={openPanel}
             onRetry={() => setShortsRetry((n) => n + 1)}

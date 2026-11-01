@@ -3,7 +3,7 @@
 // (a simpler version, a memory trick, a mistake or real-life example) and a
 // question with the creator's reply.
 
-import { moreExamples } from '@/data/moreExamples'
+import { economics, moreExamples } from '@/data/moreExamples'
 
 const chemistry = {
   id: 'chem',
@@ -413,7 +413,8 @@ const french = {
   ],
 }
 
-export const examples = [chemistry, history, french, ...moreExamples]
+// The first one is the deck the app opens with.
+export const examples = [economics, chemistry, history, french, ...moreExamples]
 
 // Find the ready-made deck that matches a search, if any.
 export function findExample(text) {

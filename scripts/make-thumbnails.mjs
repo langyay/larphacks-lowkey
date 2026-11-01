@@ -20,6 +20,7 @@ const LOOK =
   'wide 16:9 composition, no text, no letters, no numbers, no logos, no watermark.'
 
 const topics = {
+  econ: 'a supply and demand graph with two crossing curves, coins and a small factory on a grid, economics',
   chem: 'two glass beakers of bright liquid balanced on a seesaw scale, a chemistry equilibrium idea',
   wwi: 'a stylised map of Europe in 1914 with colourful alliance ropes tangled between the countries, no people',
   french: 'the Eiffel Tower, a croissant and a cafe cup with empty speech bubbles over a Paris skyline',

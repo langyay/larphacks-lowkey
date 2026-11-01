@@ -78,6 +78,30 @@ function SettingsPanel({ settings, onChange }) {
         })}
       </div>
 
+      <h3 className="mt-8 text-base font-bold">Actual study mode</h3>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={settings.studyMode}
+        onClick={() => onChange({ ...settings, studyMode: !settings.studyMode })}
+        className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl bg-white/5 px-3 py-3 text-left outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium">Turn off the distractions</span>
+          <span className="block text-xs text-white/60">
+            No Shorts and no background videos, just your flashcards. The app still looks the same.
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${settings.studyMode ? 'bg-primary' : 'bg-white/20'}`}
+        >
+          <span
+            className={`absolute top-0.5 size-5 rounded-full bg-white transition-[left] ${settings.studyMode ? 'left-[22px]' : 'left-0.5'}`}
+          />
+        </span>
+      </button>
+
       <h3 className="mt-8 text-base font-bold">Sound and focus mode</h3>
       <button
         type="button"
@@ -129,9 +153,11 @@ function SettingsPanel({ settings, onChange }) {
       </div>
 
       <h3 className="mt-8 text-base font-bold">Feed mix</h3>
-      <p className="mt-1 text-sm text-white/60">{summary(mix)}</p>
+      <p className="mt-1 text-sm text-white/60">
+        {settings.studyMode ? 'Actual study mode is on, so the feed is flashcards only.' : summary(mix)}
+      </p>
 
-      <ul className="mt-3 divide-y divide-white/10 rounded-xl bg-white/5">
+      <ul className={`mt-3 divide-y divide-white/10 rounded-xl bg-white/5 ${settings.studyMode ? 'opacity-40' : ''}`}>
         {rows.map(({ key, label, hint, icon: Icon }) => (
           <li key={key} className="flex items-center gap-3 px-3 py-3">
             <Icon className="size-5 shrink-0 text-white/70" strokeWidth={1.75} />
@@ -162,13 +188,15 @@ function SettingsPanel({ settings, onChange }) {
 
       <h3 className="mt-6 text-base font-bold">Fun Shorts</h3>
       <p className="mt-1 text-sm text-white/60">
-        {mix.fun === 0
+        {settings.studyMode
+          ? 'Off while actual study mode is on.'
+          : mix.fun === 0
           ? 'Fun Shorts are set to 0 above, so none are mixed in.'
           : funCategories.length === 0
             ? 'Pick at least one kind, or no fun Shorts will show.'
             : 'What to mix in between the studying.'}
       </p>
-      <div className={`mt-3 flex flex-wrap gap-2 ${mix.fun === 0 ? 'opacity-40' : ''}`}>
+      <div className={`mt-3 flex flex-wrap gap-2 ${mix.fun === 0 || settings.studyMode ? 'opacity-40' : ''}`}>
         {FUN_CATEGORIES.map((c) => {
           const on = funCategories.includes(c.id)
           return (

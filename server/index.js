@@ -27,6 +27,49 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN ?? '')
   .filter(Boolean)
 
 const app = express()
+// Render sits in front of the server, so trust its forwarded address (used to
+// tell visitors apart for the rate limits). Don't advertise what we run on.
+app.set('trust proxy', 1)
+app.disable('x-powered-by')
+
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff')
+  res.set('Referrer-Policy', 'no-referrer')
+  next()
+})
+
+// Rate limits: each visitor gets a small budget per minute for each kind of
+// request, so nobody can burn through the YouTube / Gemini / ElevenLabs keys.
+// Generous for normal scrolling. Kept in memory (resets when the server restarts).
+function rateLimit(name, perMinute) {
+  const hits = new Map() // visitor -> { count, resetAt }
+  return (req, res, next) => {
+    const now = Date.now()
+    const key = req.ip ?? 'unknown'
+    let entry = hits.get(key)
+    if (!entry || now > entry.resetAt) {
+      entry = { count: 0, resetAt: now + 60_000 }
+      hits.set(key, entry)
+      if (hits.size > 5000) hits.clear() // keep memory small
+    }
+    entry.count += 1
+    if (entry.count > perMinute) {
+      res.set('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)))
+      return res.status(429).json({ error: `Too many ${name} requests. Wait a minute and try again.` })
+    }
+    next()
+  }
+}
+app.use('/api/shorts', rateLimit('Shorts', 30))
+app.use('/api/fun', rateLimit('Shorts', 30))
+app.use('/api/cards', rateLimit('flashcard', 8))
+app.use('/api/speak', rateLimit('voice', 60))
+
+// Remember at most `max` results; the oldest goes first.
+function setCapped(map, key, value, max = 300) {
+  map.set(key, value)
+  if (map.size > max) map.delete(map.keys().next().value)
+}
 
 app.use((req, res, next) => {
   const origin = req.headers.origin
@@ -152,7 +195,7 @@ app.get('/api/shorts', async (req, res) => {
   try {
     // Education category (27) first, so the videos teach the topic.
     const shorts = await searchShorts(`${topic} explained`, '27')
-    shortsCache.set(key, { at: Date.now(), shorts })
+    setCapped(shortsCache, key, { at: Date.now(), shorts })
     res.json({ shorts })
   } catch (error) {
     console.error('Shorts search failed:', error.message)
@@ -358,7 +401,7 @@ app.post('/api/cards', async (req, res) => {
       return res.status(422).json({ error: "Gemini didn't find anything to turn into cards." })
     }
     const result = { topic: String(parsed.topic || topic || 'My notes').trim().slice(0, 60), cards }
-    cardsCache.set(key, result)
+    setCapped(cardsCache, key, result)
     res.json(result)
   } catch (error) {
     console.error('Gemini request failed:', error.message)
@@ -472,8 +515,22 @@ app.post('/api/speak', async (req, res) => {
   }
 })
 
+// Anything else under /api: a plain "not found" instead of Express's HTML page.
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }))
+
+// Broken requests (e.g. bad JSON, too large) get a short JSON error, never a
+// stack trace.
+// eslint-disable-next-line no-unused-vars
+app.use((error, req, res, next) => {
+  const status = error.status ?? 500
+  if (status >= 500) console.error('Server error:', error.message)
+  res.status(status).json({
+    error: status === 413 ? 'That request is too large.' : status < 500 ? 'That request was not valid.' : 'Something went wrong on the server.',
+  })
+})
+
 app.listen(PORT, () => {
-  console.log(`Lowkey server on http://localhost:${PORT}`)
+  console.log(`larp&learn server on http://localhost:${PORT}`)
   if (!YOUTUBE_API_KEY) console.warn('Warning: YOUTUBE_API_KEY is not set.')
   if (!GEMINI_API_KEY) console.warn('Warning: GEMINI_API_KEY is not set.')
   if (!ELEVENLABS_API_KEY) console.warn('Warning: ELEVENLABS_API_KEY is not set.')

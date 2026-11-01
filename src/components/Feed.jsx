@@ -45,7 +45,7 @@ function FeedMessage({ children }) {
 
 // The scrolling feed. CSS scroll-snap makes each swipe land on exactly one Short.
 // On phones it stops above the bottom nav; on desktop it fills the window.
-function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRetryCards }) {
+function Feed({ deck, learn, fun, pattern, plain, onHome, onOpenComments, onRetry, onRetryCards }) {
   // Remix keeps its own shuffled copy; cards that arrive later (from Gemini)
   // replace it, since they're a different list.
   const [shuffled, setShuffled] = useState(null)
@@ -63,8 +63,9 @@ function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRe
     scrollToTop()
   }
 
-  const items = mix(cards, learn.items, fun.items, pattern)
   const makingCards = deck.status === 'loading'
+  // While the flashcards are being made, show nothing else (no Shorts to scroll).
+  const items = makingCards ? [] : mix(cards, learn.items, fun.items, pattern)
   const loading = makingCards || learn.status === 'loading' || fun.status === 'loading'
   const failed = learn.status === 'error' || fun.status === 'error'
   const searchAgain = () => onOpenComments({ tab: 'search' })
@@ -73,7 +74,9 @@ function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRe
     <>
       <div
         ref={feedRef}
-        className="h-[calc(100dvh-var(--nav-h))] snap-y snap-mandatory overflow-y-scroll bg-black [scrollbar-width:none] lg:h-dvh lg:bg-[#0f0f0f]"
+        className={`h-[calc(100dvh-var(--nav-h))] snap-y snap-mandatory bg-black [scrollbar-width:none] lg:h-dvh lg:bg-[#0f0f0f] ${
+          makingCards ? 'overflow-hidden' : 'overflow-y-scroll'
+        }`}
       >
         {items.map((item) => {
           if (item.type !== 'card') {
@@ -94,25 +97,31 @@ function Feed({ deck, learn, fun, pattern, onHome, onOpenComments, onRetry, onRe
               seed={seed}
               card={item.card}
               topic={deck.topic}
+              plain={plain}
               onRemix={remix}
               onOpenComments={onOpenComments}
             />
           )
         })}
 
-        {items.length === 0 && loading && (
+        {/* Making flashcards: one blank black screen, like a video still
+            buffering. Nothing to scroll, only a small spinner. */}
+        {makingCards && (
+          <section
+            aria-busy="true"
+            className="flex h-[calc(100dvh-var(--nav-h))] items-center justify-center bg-black lg:h-dvh"
+          >
+            <LoaderCircle className="size-9 animate-spin text-white/40 motion-reduce:animate-none" />
+            <span className="sr-only">
+              {deck.topic === 'My notes' ? 'Turning your notes into flashcards' : `Making flashcards about ${deck.topic}`}
+            </span>
+          </section>
+        )}
+
+        {items.length === 0 && loading && !makingCards && (
           <FeedMessage>
             <LoaderCircle className="size-10 animate-spin text-white/70 motion-reduce:animate-none" />
-            <p className="mt-4 text-lg font-medium">
-              {makingCards
-                ? deck.topic === 'My notes'
-                  ? 'Turning your notes into flashcards…'
-                  : `Making flashcards about ${deck.topic}…`
-                : `Finding Shorts about ${deck.topic}…`}
-            </p>
-            {makingCards && (
-              <p className="mt-2 text-sm text-white/60">This takes about 20 seconds.</p>
-            )}
+            <p className="mt-4 text-lg font-medium">Finding Shorts about {deck.topic}…</p>
           </FeedMessage>
         )}
 

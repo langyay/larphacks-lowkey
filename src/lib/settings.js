@@ -28,6 +28,8 @@ export const DEFAULT_SETTINGS = {
   funCategories: ['movies', 'gaming'],
   brainrot: 0,
   app: 'youtube',
+  // Actual study mode: no Shorts and no background videos, just the cards.
+  studyMode: false,
 }
 
 const STORAGE_KEY = 'lowkey-settings'
@@ -46,7 +48,8 @@ function clean(saved) {
     : DEFAULT_SETTINGS.funCategories
   const brainrot = [0, 1, 2].includes(saved?.brainrot) ? saved.brainrot : 0
   const app = APP_LOOKS.some((a) => a.id === saved?.app) ? saved.app : 'youtube'
-  return { mix, funCategories, brainrot, app }
+  const studyMode = saved?.studyMode === true
+  return { mix, funCategories, brainrot, app, studyMode }
 }
 
 export function loadSettings() {

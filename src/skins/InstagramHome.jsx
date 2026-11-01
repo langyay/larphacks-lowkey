@@ -9,6 +9,7 @@ import { formatCount, makeChannel } from '@/lib/fakeChannel'
 // wide featured tile at the top.
 
 const chipNames = {
+  econ: 'Economics',
   chem: 'Chemistry',
   wwi: 'History',
   french: 'French',

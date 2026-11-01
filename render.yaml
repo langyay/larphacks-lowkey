@@ -36,6 +36,19 @@ services:
     runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    # Safety headers: no embedding our site in someone else's page, no
+    # file-type guessing, and only our site's address is shared with others
+    # (YouTube's player needs that much).
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
     envVars:
       - key: NODE_VERSION
         value: "24"
