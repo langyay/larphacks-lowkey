@@ -1,8 +1,8 @@
-import Feed from '@/components/Feed'
+import FeedWithComments from '@/components/FeedWithComments'
 import { sampleDeck } from '@/data/sampleDeck'
 
 function App() {
-  return <Feed deck={sampleDeck} />
+  return <FeedWithComments deck={sampleDeck} />
 }
 
 export default App
