@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#4b3a14"/>
+  <circle cx="500" cy="90" r="150" fill="#5a4619"/>
+  <rect x="0" y="312" width="640" height="48" fill="#35290e"/>
+  <!-- stack of books -->
+  <rect x="170" y="268" width="260" height="46" rx="6" fill="#c8553d"/>
+  <rect x="186" y="280" width="228" height="8" fill="#f4ead8" opacity="0.85"/>
+  <rect x="196" y="222" width="230" height="46" rx="6" fill="#2f80c4"/>
+  <rect x="212" y="234" width="198" height="8" fill="#f4ead8" opacity="0.85"/>
+  <rect x="162" y="176" width="240" height="46" rx="6" fill="#4f8a6b"/>
+  <rect x="178" y="188" width="208" height="8" fill="#f4ead8" opacity="0.85"/>
+  <rect x="190" y="136" width="210" height="40" rx="6" fill="#e9b44c"/>
+  <rect x="206" y="146" width="178" height="8" fill="#4b3a14" opacity="0.7"/>
+  <!-- lightbulb -->
+  <g>
+    <circle cx="296" cy="64" r="58" fill="#ffd166" opacity="0.25"/>
+    <path d="M296 22 C262 22 244 48 252 72 C256 86 270 94 272 108 L320 108 C322 94 336 86 340 72 C348 48 330 22 296 22 Z" fill="#ffd166"/>
+    <rect x="274" y="110" width="44" height="8" rx="4" fill="#d9d2c3"/>
+    <rect x="280" y="120" width="32" height="8" rx="4" fill="#d9d2c3"/>
+    <path d="M284 72 L296 54 L308 72" fill="none" stroke="#b9741c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- pencil -->
+  <g transform="rotate(-24 520 250)">
+    <rect x="400" y="236" width="190" height="28" fill="#f2c14e"/>
+    <rect x="400" y="236" width="190" height="8" fill="#fadf8c"/>
+    <path d="M590 236 L632 250 L590 264 Z" fill="#f1d3a6"/>
+    <path d="M618 245 L632 250 L618 255 Z" fill="#2b2b2b"/>
+    <rect x="376" y="236" width="24" height="28" fill="#d9534f"/>
+    <rect x="394" y="236" width="8" height="28" fill="#cfd6db"/>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#40201e"/>
+  <rect x="0" y="250" width="640" height="110" fill="#331917"/>
+  <!-- a stylised map: countries as flat shapes -->
+  <path d="M120 190 L170 120 L250 110 L280 170 L230 240 L150 250 Z" fill="#c8553d"/>
+  <path d="M280 170 L250 110 L330 70 L400 100 L390 170 L330 200 Z" fill="#e9b44c"/>
+  <path d="M390 170 L400 100 L480 90 L530 150 L500 220 L420 230 Z" fill="#4f8a6b"/>
+  <path d="M230 240 L280 170 L330 200 L390 170 L420 230 L380 290 L300 300 L240 280 Z" fill="#4a7fb0"/>
+  <path d="M150 250 L230 240 L240 280 L200 310 L140 290 Z" fill="#8c6a9a" />
+  <path d="M500 220 L530 150 L580 190 L570 260 L520 270 Z" fill="#d9d2c3"/>
+  <!-- tangled alliance ropes between capitals -->
+  <g fill="none" stroke="#f4ead8" stroke-width="5" stroke-linecap="round">
+    <path d="M200 180 C260 90 330 260 340 140"/>
+    <path d="M340 140 C400 220 440 80 450 160"/>
+    <path d="M200 180 C230 280 330 330 320 250"/>
+    <path d="M320 250 C380 190 420 290 450 160"/>
+    <path d="M450 160 C500 120 540 240 545 215"/>
+    <path d="M340 140 C300 200 250 150 200 180"/>
+  </g>
+  <g fill="#f4ead8">
+    <circle cx="200" cy="180" r="11"/>
+    <circle cx="340" cy="140" r="11"/>
+    <circle cx="450" cy="160" r="11"/>
+    <circle cx="320" cy="250" r="11"/>
+    <circle cx="545" cy="215" r="11"/>
+  </g>
+  <g fill="#40201e">
+    <circle cx="200" cy="180" r="5"/>
+    <circle cx="340" cy="140" r="5"/>
+    <circle cx="450" cy="160" r="5"/>
+    <circle cx="320" cy="250" r="5"/>
+    <circle cx="545" cy="215" r="5"/>
+  </g>
+  <!-- a spark at the knot of the ropes -->
+  <path d="M330 168 L338 188 L358 196 L338 204 L330 224 L322 204 L302 196 L322 188 Z" fill="#ffd166"/>
+</svg>

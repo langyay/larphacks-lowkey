@@ -13,9 +13,13 @@ export const FUN_CATEGORIES = [
 
 export const MAX_PER_TYPE = 5
 
+// How the AI writes new flashcards: 0 normal, 1 Lowkey, 2 full brainrot.
+export const BRAINROT_LEVELS = ['Normal', 'Lowkey', 'Full brainrot']
+
 export const DEFAULT_SETTINGS = {
   mix: { cards: 2, learn: 1, fun: 1 },
   funCategories: ['movies', 'gaming'],
+  brainrot: 0,
 }
 
 const STORAGE_KEY = 'lowkey-settings'
@@ -32,7 +36,8 @@ function clean(saved) {
   const funCategories = Array.isArray(saved?.funCategories)
     ? saved.funCategories.filter((id) => known.includes(id))
     : DEFAULT_SETTINGS.funCategories
-  return { mix, funCategories }
+  const brainrot = [0, 1, 2].includes(saved?.brainrot) ? saved.brainrot : 0
+  return { mix, funCategories, brainrot }
 }
 
 export function loadSettings() {

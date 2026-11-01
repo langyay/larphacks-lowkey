@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#2c4a14"/>
+  <g stroke="#3a5d1c" stroke-width="2">
+    <path d="M0 60 H640 M0 120 H640 M0 180 H640 M0 240 H640 M0 300 H640"/>
+    <path d="M80 0 V360 M160 0 V360 M240 0 V360 M320 0 V360 M400 0 V360 M480 0 V360 M560 0 V360"/>
+  </g>
+  <!-- protractor -->
+  <path d="M60 320 A180 180 0 0 1 420 320 Z" fill="#d9f0e0" fill-opacity="0.18" stroke="#d9f0e0" stroke-width="4"/>
+  <g stroke="#d9f0e0" stroke-width="3" stroke-linecap="round">
+    <path d="M240 320 V150 M60 320 L90 320 M420 320 L390 320 M118 193 L140 210 M362 193 L340 210 M168 150 L182 170 M312 150 L298 170"/>
+  </g>
+  <!-- triangle -->
+  <path d="M130 312 L520 312 L400 92 Z" fill="#f4ead8" fill-opacity="0.12" stroke="#f4ead8" stroke-width="7" stroke-linejoin="round"/>
+  <!-- angle arcs -->
+  <path d="M190 312 A60 60 0 0 0 175 270" fill="none" stroke="#f0b429" stroke-width="9" stroke-linecap="round"/>
+  <path d="M470 312 A50 50 0 0 1 482 268" fill="none" stroke="#ff7a45" stroke-width="9" stroke-linecap="round"/>
+  <path d="M376 130 A44 44 0 0 0 424 132" fill="none" stroke="#2ec4b6" stroke-width="9" stroke-linecap="round"/>
+  <g fill="#f4ead8"><circle cx="130" cy="312" r="8"/><circle cx="520" cy="312" r="8"/><circle cx="400" cy="92" r="8"/></g>
+  <!-- compass -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M560 40 L528 150" stroke="#cfd6db" stroke-width="9" fill="none"/>
+    <path d="M560 40 L596 148" stroke="#cfd6db" stroke-width="9" fill="none"/>
+    <circle cx="560" cy="36" r="13" fill="#f0b429"/>
+    <path d="M528 150 L524 166 L532 150 Z" fill="#cfd6db" stroke="#cfd6db" stroke-width="3"/>
+    <path d="M596 148 L604 166 L592 150 Z" fill="#d9534f" stroke="#d9534f" stroke-width="3"/>
+  </g>
+</svg>

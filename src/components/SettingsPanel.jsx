@@ -1,5 +1,5 @@
 import { Check, Clapperboard, GraduationCap, Layers, Minus, Plus } from 'lucide-react'
-import { DEFAULT_SETTINGS, FUN_CATEGORIES, MAX_PER_TYPE } from '@/lib/settings'
+import { BRAINROT_LEVELS, DEFAULT_SETTINGS, FUN_CATEGORIES, MAX_PER_TYPE } from '@/lib/settings'
 
 const rows = [
   { key: 'cards', label: 'Flashcards', hint: 'Your study cards', icon: Layers },
@@ -51,7 +51,30 @@ function SettingsPanel({ settings, onChange }) {
 
   return (
     <div className="px-4 pt-3 pb-6">
-      <h3 className="text-base font-bold">Feed mix</h3>
+      <h3 className="text-base font-bold">Card voice</h3>
+      <p className="mt-1 text-sm text-white/60">
+        How the AI words new flashcards. Applies to topics and notes you search next; the ready-made topics stay normal.
+      </p>
+      <input
+        type="range"
+        min={0}
+        max={BRAINROT_LEVELS.length - 1}
+        step={1}
+        value={settings.brainrot}
+        onChange={(e) => onChange({ ...settings, brainrot: Number(e.target.value) })}
+        aria-label="Card voice"
+        aria-valuetext={BRAINROT_LEVELS[settings.brainrot]}
+        className="mt-4 h-6 w-full cursor-pointer accent-primary"
+      />
+      <div className="mt-1 flex justify-between text-xs font-medium">
+        {BRAINROT_LEVELS.map((label, i) => (
+          <span key={label} className={settings.brainrot === i ? 'text-white' : 'text-white/50'}>
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <h3 className="mt-8 text-base font-bold">Feed mix</h3>
       <p className="mt-1 text-sm text-white/60">{summary(mix)}</p>
 
       <ul className="mt-3 divide-y divide-white/10 rounded-xl bg-white/5">

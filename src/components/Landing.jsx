@@ -18,8 +18,36 @@ const subjects = {
   un: { chip: 'United Nations', colour: 'oklch(0.36 0.06 250)' },
 }
 
+// Avatar colours for the made-up creators: one clearly different colour each.
+const avatarColours = ['#d9534f', '#e08a1e', '#2f9e6f', '#2f80c4', '#c2478f', '#1f9aa3', '#8a6d3b', '#5b8c2a']
+
 // Each deck is posted by its own made-up channel, like a Short's creator.
-const channels = Object.fromEntries(examples.map((ex) => [ex.id, makeChannel(ex.id)]))
+const channels = Object.fromEntries(
+  examples.map((ex, i) => [
+    ex.id,
+    { ...makeChannel(ex.id), tone: { bg: avatarColours[i % avatarColours.length], fg: 'white' } },
+  ]),
+)
+
+// The card picture, from public/thumbs/<id>.svg, .jpg or .png. If neither exists
+// yet, the plain coloured tile shows instead.
+const THUMB_TYPES = ['svg', 'jpg', 'png']
+function Thumb({ id }) {
+  const [attempt, setAttempt] = useState(0)
+  if (attempt >= THUMB_TYPES.length) return null
+  return (
+    <>
+      <img
+        src={`/thumbs/${id}.${THUMB_TYPES[attempt]}`}
+        alt=""
+        loading="lazy"
+        onError={() => setAttempt((a) => a + 1)}
+        className="absolute inset-0 size-full object-cover"
+      />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
+    </>
+  )
+}
 
 const chipBase =
   'flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white'
@@ -117,10 +145,11 @@ function Landing({ onSearch, onPick, onNotes, onSettings, onFeed }) {
                 >
                   <div
                     style={{ backgroundColor: subjects[ex.id].colour }}
-                    className="relative flex aspect-video items-center overflow-hidden px-6 group-focus-visible:ring-2 group-focus-visible:ring-white sm:rounded-xl"
+                    className="relative flex aspect-video items-end overflow-hidden px-4 pb-3 group-focus-visible:ring-2 group-focus-visible:ring-white sm:rounded-xl"
                   >
+                    <Thumb id={ex.id} />
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
-                    <p className="shorts-caption relative text-[26px] leading-[1.15]">{ex.topic}</p>
+                    <p className="shorts-caption relative max-w-[75%] text-[20px] leading-[1.15]">{ex.topic}</p>
                     <span className="absolute right-2 bottom-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium">
                       {ex.cards.length} cards
                     </span>

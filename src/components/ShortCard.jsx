@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Ellipsis,
   EllipsisVertical,
+  EyeOff,
   Maximize,
   Pause,
   Play,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react'
 import { ChannelLine, PlayerButton } from '@/components/ReelCard'
 import ReelSidebar from '@/components/ReelSidebar'
+import { toggleCover, useCover } from '@/lib/cover'
 
 // A real YouTube Short in the feed, laid out exactly like the flashcards:
 // player in the "video" spot, our rail, the real channel and title.
@@ -36,6 +38,7 @@ function ShortCard({ short, onRemix, onOpenComments }) {
   const [saved, setSaved] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [clear, setClear] = useState(false)
+  const cover = useCover()
 
   const sectionRef = useRef(null)
   const playerRef = useRef(null)
@@ -113,7 +116,7 @@ function ShortCard({ short, onRemix, onOpenComments }) {
             alt=""
             className="absolute inset-0 size-full object-cover opacity-60"
           />
-          {inView && (
+          {inView && !cover && (
             <iframe
               ref={playerRef}
               src={src}
@@ -141,6 +144,14 @@ function ShortCard({ short, onRemix, onOpenComments }) {
             <>
               {/* Phone: sound, search and ••• in the top-right corner. */}
               <div className="absolute top-0 right-0 flex pt-[max(6px,env(safe-area-inset-top))] pr-1.5 lg:hidden">
+                <button
+                  type="button"
+                  onClick={toggleCover}
+                  aria-label="Someone's looking: show a decoy"
+                  className="flex size-11 cursor-pointer items-center justify-center drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]"
+                >
+                  <EyeOff className="size-6" strokeWidth={2} />
+                </button>
                 <button
                   type="button"
                   onClick={toggleMute}
@@ -186,6 +197,9 @@ function ShortCard({ short, onRemix, onOpenComments }) {
                   </div>
                 </div>
                 <div className="flex rounded-full bg-black/40">
+                  <PlayerButton label="Someone's looking: show a decoy" onClick={toggleCover}>
+                    <EyeOff className="size-6" />
+                  </PlayerButton>
                   <PlayerButton label="More: clear screen" onClick={() => setClear(true)}>
                     <EllipsisVertical className="size-6" />
                   </PlayerButton>

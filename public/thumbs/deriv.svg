@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#262626"/>
+  <!-- grid -->
+  <g stroke="#3a3a3a" stroke-width="2">
+    <path d="M0 60 H640 M0 120 H640 M0 180 H640 M0 240 H640 M0 300 H640"/>
+    <path d="M80 0 V360 M160 0 V360 M240 0 V360 M320 0 V360 M400 0 V360 M480 0 V360 M560 0 V360"/>
+  </g>
+  <!-- axes -->
+  <g stroke="#8a8a8a" stroke-width="4" stroke-linecap="round">
+    <path d="M40 300 H610"/>
+    <path d="M80 330 V30"/>
+  </g>
+  <!-- tangent line -->
+  <path d="M250 292 L560 76" stroke="#f0b429" stroke-width="7" stroke-linecap="round"/>
+  <!-- the curve -->
+  <path d="M80 296 C200 290 250 250 320 190 C390 130 470 60 600 50" fill="none" stroke="#2ec4b6" stroke-width="9" stroke-linecap="round"/>
+  <!-- slope triangle -->
+  <path d="M320 190 H430 V113" fill="none" stroke="#f4ead8" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round"/>
+  <!-- point of tangency -->
+  <circle cx="320" cy="190" r="17" fill="#f0b429" fill-opacity="0.3"/>
+  <circle cx="320" cy="190" r="10" fill="#ff7a45"/>
+  <circle cx="320" cy="190" r="4" fill="#262626"/>
+</svg>

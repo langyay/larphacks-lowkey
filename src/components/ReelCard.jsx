@@ -3,6 +3,7 @@ import {
   Captions,
   Ellipsis,
   EllipsisVertical,
+  EyeOff,
   Maximize,
   Pause,
   Play,
@@ -13,6 +14,7 @@ import {
 import Avatar from '@/components/Avatar'
 import MemeBackground from '@/components/MemeBackground'
 import ReelSidebar from '@/components/ReelSidebar'
+import { toggleCover, useCover } from '@/lib/cover'
 import { makeChannel } from '@/lib/fakeChannel'
 import { toggleSound, unlockSound, useNarration, useSound } from '@/lib/narration'
 
@@ -82,6 +84,7 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
   const [paused, setPaused] = useState(false)
   const [captionsOn, setCaptionsOn] = useState(true)
   const { soundOn } = useSound()
+  const cover = useCover()
 
   // Know when this card is on screen, so its progress line only runs then
   // and starts from zero each time it comes into view.
@@ -104,7 +107,7 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
   const narration = useNarration(
     revealed ? card.answer : card.question,
     channel.voice,
-    inView && !paused,
+    inView && !paused && !cover,
   )
   const spoken = captionsOn && narration.status === 'playing' ? narration.word : -1
 
@@ -232,6 +235,14 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
               <div className="absolute top-0 right-0 flex pt-[max(6px,env(safe-area-inset-top))] pr-1.5 lg:hidden">
                 <button
                   type="button"
+                  onClick={toggleCover}
+                  aria-label="Someone's looking: show a decoy"
+                  className="flex size-11 cursor-pointer items-center justify-center drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]"
+                >
+                  <EyeOff className="size-6" strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
                   onClick={toggleSound}
                   aria-label={soundOn ? 'Mute narration' : 'Unmute narration'}
                   aria-pressed={!soundOn}
@@ -295,6 +306,9 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
                     <Captions
                       className={`size-6 ${captionsOn ? '' : 'opacity-50'}`}
                     />
+                  </PlayerButton>
+                  <PlayerButton label="Someone's looking: show a decoy" onClick={toggleCover}>
+                    <EyeOff className="size-6" />
                   </PlayerButton>
                   <PlayerButton
                     label="More: clear screen"

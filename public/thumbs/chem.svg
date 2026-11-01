@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#0f3347"/>
+  <circle cx="540" cy="60" r="130" fill="#14465e"/>
+  <circle cx="70" cy="320" r="110" fill="#14465e"/>
+  <!-- balance arrows -->
+  <g fill="none" stroke="#f0b429" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M250 92 Q320 52 390 92"/>
+    <path d="M372 76 L392 94 L368 104"/>
+    <path d="M390 126 Q320 166 250 126"/>
+    <path d="M268 142 L248 124 L272 114"/>
+  </g>
+  <!-- fulcrum and floor -->
+  <path d="M296 322 L344 322 L320 252 Z" fill="#e9eef2"/>
+  <rect x="120" y="318" width="400" height="12" rx="6" fill="#0a2331"/>
+  <!-- plank with the two beakers (tilted) -->
+  <g transform="rotate(-7 320 252)">
+    <rect x="90" y="244" width="460" height="16" rx="8" fill="#f0b429"/>
+    <!-- left beaker -->
+    <path d="M150 244 L150 150 Q150 140 160 140 L226 140 Q236 140 236 150 L236 244 Z" fill="#cfe6f0" fill-opacity="0.18" stroke="#cfe6f0" stroke-width="4"/>
+    <path d="M154 196 L232 196 L232 244 L154 244 Z" fill="#ff7a45"/>
+    <circle cx="178" cy="222" r="6" fill="#ffd0b8"/>
+    <circle cx="204" cy="208" r="4" fill="#ffd0b8"/>
+    <circle cx="214" cy="232" r="5" fill="#ffd0b8"/>
+    <!-- right beaker -->
+    <path d="M404 244 L404 150 Q404 140 414 140 L480 140 Q490 140 490 150 L490 244 Z" fill="#cfe6f0" fill-opacity="0.18" stroke="#cfe6f0" stroke-width="4"/>
+    <path d="M408 168 L486 168 L486 244 L408 244 Z" fill="#2ec4b6"/>
+    <circle cx="432" cy="214" r="6" fill="#b8f2eb"/>
+    <circle cx="458" cy="190" r="4" fill="#b8f2eb"/>
+    <circle cx="468" cy="226" r="5" fill="#b8f2eb"/>
+    <circle cx="440" cy="236" r="3" fill="#b8f2eb"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#0d343a"/>
+  <!-- circuit board traces -->
+  <g fill="none" stroke="#1b6a73" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 70 L120 70 L150 100 L230 100"/>
+    <path d="M0 150 L90 150 L120 180 L200 180"/>
+    <path d="M0 270 L110 270 L140 240 L220 240"/>
+    <path d="M640 80 L520 80 L490 110 L410 110"/>
+    <path d="M640 170 L550 170 L520 200 L440 200"/>
+    <path d="M640 280 L530 280 L500 250 L420 250"/>
+    <path d="M320 0 L320 34 M240 360 L240 322 M400 360 L400 322"/>
+  </g>
+  <g fill="#0d343a" stroke="#1b6a73" stroke-width="5">
+    <circle cx="230" cy="100" r="9"/><circle cx="200" cy="180" r="9"/><circle cx="220" cy="240" r="9"/>
+    <circle cx="410" cy="110" r="9"/><circle cx="440" cy="200" r="9"/><circle cx="420" cy="250" r="9"/>
+    <circle cx="320" cy="34" r="9"/>
+  </g>
+  <!-- shield -->
+  <path d="M320 46 L430 84 L430 190 C430 250 380 292 320 318 C260 292 210 250 210 190 L210 84 Z" fill="#2ec4b6"/>
+  <path d="M320 62 L414 94 L414 190 C414 242 372 278 320 302 C268 278 226 242 226 190 L226 94 Z" fill="#12525a"/>
+  <!-- padlock -->
+  <path d="M286 164 L286 142 C286 122 354 122 354 142 L354 164" fill="none" stroke="#f4ead8" stroke-width="13" stroke-linecap="round"/>
+  <rect x="270" y="160" width="100" height="80" rx="12" fill="#f0b429"/>
+  <circle cx="320" cy="194" r="11" fill="#12525a"/>
+  <rect x="316" y="196" width="8" height="24" rx="4" fill="#12525a"/>
+</svg>

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import CommentsPanel from '@/components/CommentsPanel'
 import Feed from '@/components/Feed'
+import CoverScreen from '@/components/CoverScreen'
 import Landing from '@/components/Landing'
 import { LogoMark } from '@/components/Logo'
+import { setCover, useCover, useCoverGesture } from '@/lib/cover'
 import { examples, findExample } from '@/data/examples'
 import { fetchCards, fetchFunShorts, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
@@ -68,6 +70,21 @@ function FeedWithComments() {
   const fun = useShorts(
     (signal) => (funKey ? fetchFunShorts(funKey.split(','), { signal }) : null),
     [deck.id, funKey, shortsRetry],
+  )
+
+  // Decoys for cover mode: fun Shorts from the same categories (the server
+  // already caches them), so it costs no extra YouTube searches when the feed
+  // mixes fun Shorts in. If the person turned fun off, comedy and gaming.
+  const covered = useCover()
+  useCoverGesture(inFeed)
+  const decoyKey = inFeed
+    ? settings.funCategories.length
+      ? [...settings.funCategories].sort().join(',')
+      : 'comedy,gaming'
+    : ''
+  const decoys = useShorts(
+    (signal) => (decoyKey ? fetchFunShorts(decoyKey.split(','), { signal }) : null),
+    [decoyKey],
   )
 
   const [panel, setPanel] = useState({
@@ -145,7 +162,7 @@ function FeedWithComments() {
     const example = findExample(text)
     if (example) return loadDeck(example.topic, example.cards)
     // Any other topic: Gemini writes the cards while real Shorts load.
-    loadDeck(text, [], { topic: text })
+    loadDeck(text, [], { topic: text, style: settings.brainrot })
   }
 
   const pick = (id) => {
@@ -153,10 +170,11 @@ function FeedWithComments() {
     loadDeck(example.topic, example.cards)
   }
 
-  const fromNotes = (notes) => loadDeck('My notes', [], { notes })
+  const fromNotes = (notes) => loadDeck('My notes', [], { notes, style: settings.brainrot })
 
   return (
     <>
+      {inFeed && covered && <CoverScreen shorts={decoys.items} onBack={() => setCover(false)} />}
       {inFeed ? (
         <>
           <Feed
