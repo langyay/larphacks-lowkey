@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import CommentsPanel from '@/components/CommentsPanel'
 import Feed from '@/components/Feed'
 import CoverScreen from '@/components/CoverScreen'
@@ -9,7 +9,7 @@ import { SkinProvider } from '@/lib/skin'
 import InstagramHome from '@/skins/InstagramHome'
 import DesktopSidebar from '@/skins/sidebars'
 import { examples, findExample } from '@/data/examples'
-import { fetchCards, fetchFunShorts, fetchShorts } from '@/lib/api'
+import { fetchCards, fetchFunShorts, fetchRewrite, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
 import { loadSettings, saveSettings } from '@/lib/settings'
 
@@ -50,6 +50,9 @@ function FeedWithComments() {
     id: 0,
     topic: examples[0].topic,
     cards: examples[0].cards,
+    // The normal wording; `cards` is what's shown (reworded when a card voice is on).
+    base: examples[0].cards,
+    level: 0,
     status: 'ready',
   })
   // The app opens on the home page; searching (or any deck swap) shows the feed.
@@ -59,7 +62,47 @@ function FeedWithComments() {
   const changeSettings = (next) => {
     setSettings(next)
     saveSettings(next)
+    // A new card voice rewrites the flashcards that are open right now.
+    if (next.brainrot !== settings.brainrot) restyle(deck.id, deck.base ?? deck.cards, next.brainrot)
   }
+
+  // The card voice (0 normal, 1 Lowkey, 2 full brainrot) rewords a deck's questions and
+  // answers through Gemini. `level` marks which voice the deck is meant to be in, so a
+  // slow older answer can't overwrite a newer choice.
+  const levelRef = useRef(settings.brainrot)
+  useEffect(() => {
+    levelRef.current = settings.brainrot
+  })
+  const restyle = (id, base, level) => {
+    const update = (changes) =>
+      setDeck((d) => (d.id === id && d.level === level ? { ...d, ...changes } : d))
+    const working = level > 0 && base.length > 0
+    setDeck((d) =>
+      d.id === id
+        ? { ...d, level, styling: working, voiceError: undefined, ...(level === 0 ? { cards: base } : {}) }
+        : d,
+    )
+    if (!working) return
+    fetchRewrite(base, level)
+      .then((rewritten) =>
+        update({
+          styling: false,
+          cards: base.map((c, i) => ({
+            ...c,
+            question: rewritten[i]?.question || c.question,
+            answer: rewritten[i]?.answer || c.answer,
+          })),
+        }),
+      )
+      .catch((error) => update({ styling: false, voiceError: error.message }))
+  }
+  const retryVoice = () => restyle(deck.id, deck.base ?? deck.cards, deck.level ?? 0)
+
+  // TikTok opens straight into the feed, so its first deck gets the saved voice too.
+  useEffect(() => {
+    if (settings.app === 'tiktok' && settings.brainrot > 0) restyle(0, examples[0].cards, settings.brainrot)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Bumped by "Try again" to reload Shorts without touching the cards.
   const [shortsRetry, setShortsRetry] = useState(0)
@@ -127,13 +170,14 @@ function FeedWithComments() {
   // works, the deck is 'loading' and the feed shows Shorts in the meantime.
   const loadDeck = (topic, cards, input = null) => {
     const id = deck.id + 1
-    setDeck({ id, topic, cards, status: input ? 'loading' : 'ready', input })
+    setDeck({ id, topic, cards, base: cards, level: 0, status: input ? 'loading' : 'ready', input })
     setView('feed')
     if (topic !== 'My notes') {
       setRecent((list) => [topic, ...list.filter((t) => t !== topic)].slice(0, 5))
     }
     setPanel((p) => ({ ...p, open: false, target: null }))
     if (input) generate(id, input)
+    else if (levelRef.current > 0) restyle(id, cards, levelRef.current)
   }
 
   // Ask Gemini for cards. If it fails on notes, fall back to the note splitter.
@@ -143,19 +187,24 @@ function FeedWithComments() {
       setDeck((d) => (d.id === id ? { ...d, ...changes } : d))
     fetchCards(input)
       .then((result) =>
-        update({
-          status: 'ready',
-          cards: result.cards,
-          // For notes, Gemini names the topic (that also finds better Shorts).
-          ...(input.notes ? { topic: result.topic } : {}),
-        }),
+        {
+          update({
+            status: 'ready',
+            cards: result.cards,
+            base: result.cards,
+            // For notes, Gemini names the topic (that also finds better Shorts).
+            ...(input.notes ? { topic: result.topic } : {}),
+          })
+          if (levelRef.current > 0) restyle(id, result.cards, levelRef.current)
+        },
       )
       .catch((error) => {
         const backup = input.notes ? makeCards(input.notes) : []
         if (backup.length > 0) {
           const guessed = guessTopic(input.notes)
           const topic = guessed === 'My notes' ? (findExample(input.notes)?.topic ?? guessed) : guessed
-          update({ status: 'ready', cards: backup, topic })
+          update({ status: 'ready', cards: backup, base: backup, topic })
+          if (levelRef.current > 0) restyle(id, backup, levelRef.current)
         } else {
           update({ status: 'error', error: error.message })
         }
@@ -172,7 +221,7 @@ function FeedWithComments() {
     const example = findExample(text)
     if (example) return loadDeck(example.topic, example.cards)
     // Any other topic: Gemini writes the cards while real Shorts load.
-    loadDeck(text, [], { topic: text, style: settings.brainrot })
+    loadDeck(text, [], { topic: text })
   }
 
   const pick = (id) => {
@@ -180,7 +229,7 @@ function FeedWithComments() {
     loadDeck(example.topic, example.cards)
   }
 
-  const fromNotes = (notes) => loadDeck('My notes', [], { notes, style: settings.brainrot })
+  const fromNotes = (notes) => loadDeck('My notes', [], { notes })
 
   // Instagram has its own Explore-style home page; YouTube keeps the video grid.
   const Home = settings.app === 'instagram' ? InstagramHome : Landing
@@ -212,6 +261,7 @@ function FeedWithComments() {
             onOpenComments={openPanel}
             onRetry={() => setShortsRetry((n) => n + 1)}
             onRetryCards={retryCards}
+            onRetryVoice={retryVoice}
           />
           {/* YouTube on desktop has no side menu, so the logo is its way back home. */}
           {settings.app === 'youtube' && (

@@ -131,7 +131,7 @@ function SettingsPanel({ settings, onChange }) {
 
       <h3 className="mt-8 text-base font-bold">Card voice</h3>
       <p className="mt-1 text-sm text-white/60">
-        How the AI words new flashcards. Applies to topics and notes you search next; the ready-made topics stay normal.
+        How the AI words the flashcards. It rewrites the cards you're on right now and any you open next, including the ready-made topics.
       </p>
       <input
         type="range"

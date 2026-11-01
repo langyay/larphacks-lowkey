@@ -45,7 +45,7 @@ function FeedMessage({ children }) {
 
 // The scrolling feed. CSS scroll-snap makes each swipe land on exactly one Short.
 // On phones it stops above the bottom nav; on desktop it fills the window.
-function Feed({ deck, learn, fun, pattern, plain, onHome, onOpenComments, onRetry, onRetryCards }) {
+function Feed({ deck, learn, fun, pattern, plain, onHome, onOpenComments, onRetry, onRetryCards, onRetryVoice }) {
   // Remix keeps its own shuffled copy; cards that arrive later (from Gemini)
   // replace it, since they're a different list.
   const [shuffled, setShuffled] = useState(null)
@@ -184,6 +184,32 @@ function Feed({ deck, learn, fun, pattern, plain, onHome, onOpenComments, onRetr
               <button
                 type="button"
                 onClick={onRetryCards}
+                className="shrink-0 cursor-pointer rounded-full bg-white/15 px-3 py-1 outline-none hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Try again
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Rewording the cards in the chosen card voice, or that it failed. */}
+      {items.length > 0 && (deck.styling || deck.voiceError) && (
+        <div
+          role="status"
+          className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-1/2 z-30 flex max-w-[70vw] -translate-x-1/2 items-center gap-2 rounded-full bg-black/75 py-1.5 pr-1.5 pl-3 text-sm font-medium text-white lg:max-w-md"
+        >
+          {deck.styling ? (
+            <>
+              <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+              <span className="truncate pr-2">Rewording the flashcards…</span>
+            </>
+          ) : (
+            <>
+              <span className="truncate">{deck.voiceError}</span>
+              <button
+                type="button"
+                onClick={onRetryVoice}
                 className="shrink-0 cursor-pointer rounded-full bg-white/15 px-3 py-1 outline-none hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white"
               >
                 Try again

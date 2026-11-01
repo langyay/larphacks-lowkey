@@ -43,3 +43,23 @@ async function getShorts(path, { signal } = {}) {
   if (!res.ok) throw new Error(body.error ?? "Couldn't reach the larp&learn server. Try again in a minute.")
   return body.shorts ?? []
 }
+
+// The same flashcards reworded in a card voice: level 1 is Lowkey, 2 is full brainrot.
+// Sends only each card's question and answer; returns the rewritten pairs in order.
+export async function fetchRewrite(cards, style, { signal } = {}) {
+  let res
+  try {
+    res = await fetch(`${BASE}/api/rewrite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cards: cards.map(({ question, answer }) => ({ question, answer })), style }),
+      signal,
+    })
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new Error("Couldn't reach the larp&learn server.")
+  }
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error ?? "Couldn't change the voice. Try again in a minute.")
+  return body.cards ?? []
+}
