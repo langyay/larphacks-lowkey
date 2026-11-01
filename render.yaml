@@ -1,0 +1,47 @@
+# Render Blueprint: creates both parts of Lowkey in one go.
+# In Render: New -> Blueprint -> pick this repo. Render asks you to paste
+# the keys marked "sync: false" (they never go in GitHub).
+
+services:
+  # The server: holds the API keys and talks to YouTube, Gemini and ElevenLabs.
+  - type: web
+    name: lowkey-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      # Only the app's own address may call the server from a browser.
+      - key: ALLOWED_ORIGIN
+        fromService:
+          type: web
+          name: lowkey
+          envVarKey: RENDER_EXTERNAL_URL
+
+  # The app: a static site built from the repo root.
+  - type: web
+    name: lowkey
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # Where the app finds the server (baked in at build time).
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: lowkey-server
+          envVarKey: RENDER_EXTERNAL_URL

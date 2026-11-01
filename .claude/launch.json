@@ -6,6 +6,20 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "render-rehearsal-server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--env-file-if-exists=../.env", "index.js"],
+      "cwd": "server",
+      "env": { "PORT": "8787", "ALLOWED_ORIGIN": "http://localhost:4173" },
+      "port": 8787
+    },
+    {
+      "name": "render-rehearsal-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "preview", "--port", "4173", "--strictPort"],
+      "port": 4173
     }
   ]
 }

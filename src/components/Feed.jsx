@@ -160,7 +160,7 @@ function Feed({ deck, learn, fun, pattern, onOpenComments, onRetry, onRetryCards
       {items.length > 0 && (makingCards || deck.status === 'error') && (
         <div
           role="status"
-          className="fixed top-3 left-1/2 z-30 flex max-w-[70vw] -translate-x-1/2 items-center gap-2 rounded-full bg-black/75 py-1.5 pr-1.5 pl-3 text-sm font-medium text-white lg:max-w-md"
+          className="fixed top-[calc(env(safe-area-inset-top)+0.75rem)] left-1/2 z-30 flex max-w-[70vw] -translate-x-1/2 items-center gap-2 rounded-full bg-black/75 py-1.5 pr-1.5 pl-3 text-sm font-medium text-white lg:max-w-md"
         >
           {makingCards ? (
             <>

@@ -168,7 +168,7 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
 
           {format === 'pov' && (
-            <p className="pointer-events-none absolute inset-x-0 top-14 bg-white px-4 py-3 text-center text-[19px] leading-snug font-bold text-black lg:top-[68px]">
+            <p className="pointer-events-none absolute inset-x-0 top-[calc(env(safe-area-inset-top)+3.5rem)] bg-white px-4 py-3 text-center text-[19px] leading-snug font-bold text-black lg:top-[68px]">
               {channel.pov}
             </p>
           )}
