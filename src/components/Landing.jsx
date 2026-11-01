@@ -1,15 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { NotebookPen, Search, Settings } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
-import Logo, { LogoMark } from '@/components/Logo'
+import Avatar from '@/components/Avatar'
+import Logo from '@/components/Logo'
 import { examples } from '@/data/examples'
+import { makeChannel } from '@/lib/fakeChannel'
 
 // Per ready-made deck: a subject chip and the colour of its "thumbnail".
 const subjects = {
   chem: { chip: 'Chemistry', colour: 'oklch(0.34 0.05 235)' },
   wwi: { chip: 'History', colour: 'oklch(0.35 0.08 30)' },
   french: { chip: 'French', colour: 'oklch(0.34 0.06 160)' },
+  sat: { chip: 'SAT', colour: 'oklch(0.38 0.06 80)' },
+  cyber: { chip: 'Cybersecurity', colour: 'oklch(0.34 0.05 200)' },
+  deriv: { chip: 'Derivatives', colour: 'oklch(0.3 0.015 60)' },
+  trig: { chip: 'Trig', colour: 'oklch(0.36 0.07 130)' },
+  un: { chip: 'United Nations', colour: 'oklch(0.36 0.06 250)' },
 }
+
+// Each deck is posted by its own made-up channel, like a Short's creator.
+const channels = Object.fromEntries(examples.map((ex) => [ex.id, makeChannel(ex.id)]))
 
 const chipBase =
   'flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white'
@@ -116,10 +126,10 @@ function Landing({ onSearch, onPick, onNotes, onSettings, onFeed }) {
                     </span>
                   </div>
                   <div className="flex gap-3 px-4 pt-3 sm:px-0">
-                    <LogoMark className="size-9 shrink-0" />
+                    <Avatar channel={channels[ex.id]} className="size-9 rounded-full text-base" />
                     <div className="min-w-0">
                       <h2 className="line-clamp-2 text-base leading-snug font-medium">{ex.label}</h2>
-                      <p className="mt-0.5 text-sm text-white/60">larp&amp;learn · {ex.cards.length} flashcards</p>
+                      <p className="mt-0.5 text-sm text-white/60">@{channels[ex.id].handle} · {ex.cards.length} flashcards</p>
                     </div>
                   </div>
                 </button>

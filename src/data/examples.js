@@ -3,6 +3,8 @@
 // (a simpler version, a memory trick, a mistake or real-life example) and a
 // question with the creator's reply.
 
+import { moreExamples } from '@/data/moreExamples'
+
 const chemistry = {
   id: 'chem',
   label: 'Chem: equilibrium',
@@ -411,7 +413,7 @@ const french = {
   ],
 }
 
-export const examples = [chemistry, history, french]
+export const examples = [chemistry, history, french, ...moreExamples]
 
 // Find the ready-made deck that matches a search, if any.
 export function findExample(text) {
