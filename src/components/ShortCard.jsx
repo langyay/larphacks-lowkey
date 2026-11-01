@@ -79,7 +79,7 @@ function ShortCard({ short, onRemix, onOpenComments }) {
 
   const url = `https://www.youtube.com/shorts/${short.id}`
   const src =
-    `https://www.youtube-nocookie.com/embed/${short.id}?autoplay=1&mute=1&playsinline=1` +
+    `https://www.youtube.com/embed/${short.id}?autoplay=1&mute=1&playsinline=1` +
     `&controls=0&loop=1&playlist=${short.id}&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`
 
   const railProps = {

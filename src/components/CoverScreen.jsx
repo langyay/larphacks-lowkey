@@ -10,7 +10,7 @@ function CoverScreen({ shorts, onBack }) {
   const [short] = useState(() => (shorts.length ? shorts[Math.floor(Math.random() * shorts.length)] : null))
 
   const src = short
-    ? `https://www.youtube-nocookie.com/embed/${short.id}?autoplay=1&mute=1&playsinline=1` +
+    ? `https://www.youtube.com/embed/${short.id}?autoplay=1&mute=1&playsinline=1` +
       `&controls=0&loop=1&playlist=${short.id}&rel=0&origin=${encodeURIComponent(location.origin)}`
     : null
 
