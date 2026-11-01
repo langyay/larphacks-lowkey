@@ -64,16 +64,34 @@ export function makeChannel(seed) {
   const likes = Math.round(10 ** (2.3 + rand() * 4))
   const comments = Math.max(3, Math.round(likes * (0.005 + rand() * 0.04)))
   const dislikes = Math.max(1, Math.round(likes * (0.003 + rand() * 0.01)))
+  const tone = pick(rand, tones)
+  const video = pick(rand, videoColours)
   return {
     handle,
     initial: handle[0].toUpperCase(),
-    tone: pick(rand, tones),
-    video: pick(rand, videoColours),
+    tone,
+    video,
     likes,
     comments,
     dislikes,
+    // How the card is dressed up as a meme Short (see ReelCard).
+    format: pick(rand, ['split', 'split', 'full', 'pov']),
+    background: pick(rand, ['runner', 'runner', 'parkour', 'slice', 'marbles']),
+    pov: pick(rand, povLines),
   }
 }
+
+// Top-bar captions for the "POV" meme format.
+const povLines = [
+  "POV: it's on the test tomorrow",
+  'me pretending I studied',
+  "when the teacher says 'this one is easy'",
+  'POV: you said you knew this',
+  'nobody: / my brain at 2am:',
+  'the one question I skipped revising',
+  "POV: the group chat says 'it's not on the exam'",
+  'me explaining this to myself in the shower',
+]
 
 const agos = ['3h ago', '9h ago', '1d ago', '2d ago', '4d ago', '1w ago', '2w ago', '1mo ago']
 

@@ -11,6 +11,7 @@ import {
   VolumeX,
 } from 'lucide-react'
 import Avatar from '@/components/Avatar'
+import MemeBackground from '@/components/MemeBackground'
 import ReelSidebar from '@/components/ReelSidebar'
 import { makeChannel } from '@/lib/fakeChannel'
 
@@ -59,6 +60,8 @@ export function ChannelLine({ channel, subscribed, onSubscribe, big }) {
 // Tap the video to flip question/answer. ⋮ / ••• clears the screen.
 function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
   const channel = useMemo(() => makeChannel(seed), [seed])
+  const format = channel.format
+  const split = format === 'split'
   const [revealed, setRevealed] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [liked, setLiked] = useState(false)
@@ -135,7 +138,21 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
           style={{ backgroundColor: channel.video }}
           className="relative h-full w-full overflow-hidden lg:aspect-[9/16] lg:h-[calc(100dvh-24px)] lg:w-auto lg:rounded-xl"
         >
+          {/* Meme background: gameplay in the bottom half (split screen) or
+              behind everything (full / POV), dimmed a little so text reads. */}
+          <MemeBackground
+            kind={channel.background}
+            playing={inView && !paused}
+            className={`absolute inset-x-0 bottom-0 w-full ${split ? 'h-1/2' : 'h-full'}`}
+          />
+          {!split && <div className="pointer-events-none absolute inset-0 bg-black/15" />}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
+
+          {format === 'pov' && (
+            <p className="pointer-events-none absolute inset-x-0 top-14 bg-white px-4 py-3 text-center text-[19px] leading-snug font-bold text-black lg:top-[68px]">
+              {channel.pov}
+            </p>
+          )}
 
           <button
             type="button"
@@ -148,26 +165,33 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
                   ? 'Show the question'
                   : 'Reveal the answer'
             }
-            className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center px-14 pb-16 text-center outline-none [perspective:1200px] lg:px-10"
+            className="absolute inset-0 flex cursor-pointer flex-col outline-none [perspective:1200px]"
           >
-            {/* Both faces sit in the same grid cell; the inner div rotates to show one. */}
+            {/* Split screen: caption centred in the top half. Otherwise centred on screen. */}
             <div
-              className={`grid w-full transition-transform duration-500 ease-out [transform-style:preserve-3d] motion-reduce:transition-none ${
-                revealed ? '[transform:rotateX(180deg)]' : ''
+              className={`flex w-full flex-col items-center justify-center px-14 text-center lg:px-10 ${
+                split ? 'h-1/2 pt-10' : 'flex-1 pb-16'
               }`}
             >
-              <h2 className="shorts-caption text-[30px] leading-[1.15] [grid-area:1/1] [backface-visibility:hidden]">
-                {card.question}
-              </h2>
-              <p className="shorts-caption text-[26px] leading-[1.2] [grid-area:1/1] [backface-visibility:hidden] [transform:rotateX(180deg)]">
-                {card.answer}
-              </p>
+              {/* Both faces sit in the same grid cell; the inner div rotates to show one. */}
+              <div
+                className={`grid w-full transition-transform duration-500 ease-out [transform-style:preserve-3d] motion-reduce:transition-none ${
+                  revealed ? '[transform:rotateX(180deg)]' : ''
+                }`}
+              >
+                <h2 className="shorts-caption text-[30px] leading-[1.15] [grid-area:1/1] [backface-visibility:hidden]">
+                  {card.question}
+                </h2>
+                <p className="shorts-caption text-[26px] leading-[1.2] [grid-area:1/1] [backface-visibility:hidden] [transform:rotateX(180deg)]">
+                  {card.answer}
+                </p>
+              </div>
+              {!clear && (
+                <span className="mt-5 rounded-full bg-black/45 px-3 py-1 text-sm font-medium text-white/90">
+                  {revealed ? 'Tap to see the question' : 'Tap to reveal the answer'}
+                </span>
+              )}
             </div>
-            {!clear && (
-              <span className="mt-6 rounded-full bg-black/45 px-3 py-1 text-sm font-medium text-white/90">
-                {revealed ? 'Tap to see the question' : 'Tap to reveal the answer'}
-              </span>
-            )}
           </button>
 
           {!clear && (
