@@ -8,6 +8,7 @@ import {
   RefreshCw,
   ThumbsDown,
 } from 'lucide-react'
+import Avatar from '@/components/Avatar'
 import { formatCount, formatFull } from '@/lib/fakeChannel'
 
 // The Shorts action rail. Two versions, copied from the real app:
@@ -55,6 +56,7 @@ function ReelSidebar({
   variant,
   channel,
   shareText,
+  shareUrl,
   liked,
   onLike,
   disliked,
@@ -69,12 +71,13 @@ function ReelSidebar({
   const icon = 'size-6'
 
   const share = async () => {
-    const data = { title: 'Lowkey', text: shareText, url: location.href }
+    const url = shareUrl ?? location.href
+    const data = { title: 'Lowkey', text: shareText, url }
     try {
       if (navigator.share) {
         await navigator.share(data)
       } else {
-        await navigator.clipboard.writeText(location.href)
+        await navigator.clipboard.writeText(url)
         setCopied(true)
         setTimeout(() => setCopied(false), 1500)
       }
@@ -83,13 +86,23 @@ function ReelSidebar({
     }
   }
 
-  const likes = channel.likes + (liked ? 1 : 0)
+  // Hidden counts (null) show as words, like YouTube does.
+  const likesLabel =
+    channel.likes == null
+      ? 'Like'
+      : formatCount(channel.likes + (liked ? 1 : 0), { smallK: phone })
+  const commentsLabel =
+    channel.comments == null
+      ? 'Comments'
+      : phone
+        ? formatCount(channel.comments, { smallK: true })
+        : formatFull(channel.comments)
 
   return (
     <div className={`flex flex-col items-center ${phone ? 'gap-1.5' : 'gap-4'}`}>
       <RailButton
         variant={variant}
-        label={formatCount(likes, { smallK: phone })}
+        label={likesLabel}
         ariaLabel="Like"
         onClick={onLike}
         pressed={liked}
@@ -103,7 +116,11 @@ function ReelSidebar({
       {!phone && (
         <RailButton
           variant={variant}
-          label={formatCount(channel.dislikes + (disliked ? 1 : 0))}
+          label={
+            channel.dislikes == null
+              ? 'Dislike'
+              : formatCount(channel.dislikes + (disliked ? 1 : 0))
+          }
           ariaLabel="Dislike"
           onClick={onDislike}
           pressed={disliked}
@@ -117,11 +134,7 @@ function ReelSidebar({
 
       <RailButton
         variant={variant}
-        label={
-          phone
-            ? formatCount(channel.comments, { smallK: true })
-            : formatFull(channel.comments)
-        }
+        label={commentsLabel}
         ariaLabel="Comments"
         onClick={onOpenComments}
       >
@@ -155,17 +168,14 @@ function ReelSidebar({
       </RailButton>
 
       {/* The channel's square tile at the bottom of the rail. */}
-      <span
-        aria-hidden="true"
-        style={{ backgroundColor: channel.tone.bg, color: channel.tone.fg }}
-        className={`flex items-center justify-center font-bold ${
+      <Avatar
+        channel={channel}
+        className={
           phone
             ? 'mt-2.5 size-[30px] rounded-md border-2 border-white text-sm'
             : 'mt-2 size-10 rounded-lg text-lg'
-        }`}
-      >
-        {channel.initial}
-      </span>
+        }
+      />
     </div>
   )
 }

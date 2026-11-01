@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ListFilter, Send, X } from 'lucide-react'
+import SettingsPanel from '@/components/SettingsPanel'
 import TeachingComments from '@/components/TeachingComments'
 import TopicSearch from '@/components/TopicSearch'
 import { formatFull } from '@/lib/fakeChannel'
@@ -21,6 +22,7 @@ const you = {
 const tabs = [
   { id: 'comments', label: 'Comments' },
   { id: 'search', label: 'Search topic' },
+  { id: 'settings', label: 'Settings' },
 ]
 
 function CommentsPanel({
@@ -36,12 +38,14 @@ function CommentsPanel({
   onSearch,
   onPick,
   onNotes,
+  settings,
+  onSettingsChange,
 }) {
   // Your own comments, keyed by card question so each card keeps its own.
   const [byCard, setByCard] = useState({})
   const [draft, setDraft] = useState('')
   const closeRef = useRef(null)
-  const cardKey = target?.card.question
+  const cardKey = target?.card?.question
   const ownComments = (cardKey && byCard[cardKey]) || []
 
   // Escape closes the panel; focus moves to the close button when it opens.
@@ -64,7 +68,9 @@ function CommentsPanel({
     setDraft('')
   }
 
-  const commentCount = target ? target.channel.comments + ownComments.length : 0
+  const commentCount = target?.card
+    ? target.channel.comments + ownComments.length
+    : (target?.short?.comments ?? 0)
   const showComments = tab === 'comments'
 
   return (
@@ -80,7 +86,7 @@ function CommentsPanel({
 
       <aside
         role="dialog"
-        aria-label={showComments ? 'Comments' : 'Search topic'}
+        aria-label={tabs.find((t) => t.id === tab)?.label}
         aria-hidden={!open}
         className={`fixed inset-x-0 bottom-0 z-50 mx-auto flex h-[70dvh] max-w-[500px] flex-col rounded-t-xl bg-[#212121] text-white transition-[transform,visibility] duration-300 ease-out motion-reduce:transition-none lg:inset-x-auto lg:top-3 lg:right-3 lg:bottom-3 lg:mx-0 lg:h-auto lg:w-[420px] lg:max-w-none lg:rounded-xl ${
           open
@@ -95,7 +101,7 @@ function CommentsPanel({
 
         <header className="flex h-14 shrink-0 items-center gap-1 pr-2 pl-4">
           <h2 className="flex-1 text-base font-bold">
-            {showComments ? 'Comments' : 'Search'}
+            {{ comments: 'Comments', search: 'Search', settings: 'Settings' }[tab]}
             {showComments && commentCount > 0 && (
               <span className="ml-2 font-normal text-white/60">
                 {formatFull(commentCount)}
@@ -147,7 +153,23 @@ function CommentsPanel({
 
         <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {showComments ? (
-            target ? (
+            target?.short ? (
+              // A real YouTube Short: its real comments live on YouTube.
+              <div className="flex h-full flex-col items-center justify-center px-8 pb-10 text-center">
+                <p className="text-base font-medium">{target.short.title}</p>
+                <p className="mt-1 text-sm text-white/60">
+                  This is a real Short by {target.short.channel}. Its comments are on YouTube.
+                </p>
+                <a
+                  href={`https://www.youtube.com/shorts/${target.short.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 flex h-10 items-center rounded-full bg-[#f1f1f1] px-5 text-sm font-medium text-[#0f0f0f] outline-none hover:bg-white focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  Open on YouTube
+                </a>
+              </div>
+            ) : target ? (
               <TeachingComments
                 card={target.card}
                 channel={target.channel}
@@ -162,6 +184,8 @@ function CommentsPanel({
                 </p>
               </div>
             )
+          ) : tab === 'settings' ? (
+            <SettingsPanel settings={settings} onChange={onSettingsChange} />
           ) : (
             <TopicSearch
               key={openId}
@@ -175,7 +199,7 @@ function CommentsPanel({
           )}
         </div>
 
-        {showComments && target && (
+        {showComments && target?.card && (
           <form
             onSubmit={post}
             className="flex shrink-0 items-center gap-3 border-t border-white/10 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]"

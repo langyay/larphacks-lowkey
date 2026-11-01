@@ -28,7 +28,7 @@ function BottomNav({ onHome, onCreate, onProfile }) {
       <NavButton label="Create: make a feed from your notes" onClick={onCreate}>
         <CirclePlus className="size-7" strokeWidth={1.5} />
       </NavButton>
-      <NavButton label="You: search a topic" onClick={onProfile}>
+      <NavButton label="You: feed settings" onClick={onProfile}>
         <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold">
           L
         </span>

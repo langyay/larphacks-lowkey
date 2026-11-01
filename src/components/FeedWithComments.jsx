@@ -1,12 +1,41 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import CommentsPanel from '@/components/CommentsPanel'
 import Feed from '@/components/Feed'
 import { examples, findExample } from '@/data/examples'
+import { fetchFunShorts, fetchShorts } from '@/lib/api'
 import { guessTopic, makeCards } from '@/lib/makeCards'
+import { loadSettings, saveSettings } from '@/lib/settings'
+
+// Load Shorts from the server into state, as { status, items, error }.
+// A failure just means no Shorts; the feed carries on with what it has.
+function useShorts(load, deps) {
+  const [shorts, setShorts] = useState({ status: 'loading', items: [] })
+  useEffect(() => {
+    const controller = new AbortController()
+    const request = load(controller.signal)
+    if (!request) {
+      setShorts({ status: 'off', items: [] })
+      return
+    }
+    setShorts({ status: 'loading', items: [] })
+    request
+      .then((items) => setShorts({ status: 'ready', items }))
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          setShorts({ status: 'error', items: [], error: error.message })
+        }
+      })
+    return () => controller.abort()
+  }, deps) // the caller lists what should trigger a reload
+
+  return shorts
+}
 
 // Feed plus its comments panel. Owns:
 // - the current deck (topic + cards), which the Search topic tab can replace
-// - whether the panel is open, on which tab, and for which card
+// - learning Shorts for that topic and fun Shorts for the chosen categories
+// - the feed settings (mix and fun categories), saved in this browser
+// - whether the panel is open, on which tab, and for which card or Short
 // - recent searches (while the app is open)
 function FeedWithComments() {
   const [deck, setDeck] = useState({
@@ -14,6 +43,23 @@ function FeedWithComments() {
     topic: examples[0].topic,
     cards: examples[0].cards,
   })
+  const [settings, setSettings] = useState(loadSettings)
+  const changeSettings = (next) => {
+    setSettings(next)
+    saveSettings(next)
+  }
+
+  const wantLearn = settings.mix.learn > 0 && deck.topic !== 'My notes'
+  const learn = useShorts(
+    (signal) => (wantLearn ? fetchShorts(deck.topic, { signal }) : null),
+    [deck.id, deck.topic, wantLearn],
+  )
+  const funKey = settings.mix.fun > 0 ? [...settings.funCategories].sort().join(',') : ''
+  const fun = useShorts(
+    (signal) => (funKey ? fetchFunShorts(funKey.split(','), { signal }) : null),
+    [deck.id, funKey],
+  )
+
   const [panel, setPanel] = useState({
     open: false,
     tab: 'comments',
@@ -25,12 +71,12 @@ function FeedWithComments() {
 
   const close = useCallback(() => setPanel((p) => ({ ...p, open: false })), [])
 
-  // Called by a card's Comments button (with that card) or by 🔍 / ➕ / You.
-  const openPanel = ({ tab, card, channel, seed, notes = false }) =>
+  // Called by a card's or Short's Comments button, or by 🔍 / ➕ / You.
+  const openPanel = ({ tab, card, channel, seed, short, notes = false }) =>
     setPanel((p) => ({
       open: true,
       tab,
-      target: card ? { card, channel, seed } : p.target,
+      target: card ? { card, channel, seed } : short ? { short } : p.target,
       notes,
       openId: p.openId + 1,
     }))
@@ -46,7 +92,8 @@ function FeedWithComments() {
   const search = (text) => {
     const example = findExample(text)
     if (example) return loadDeck(example.topic, example.cards)
-    return `No ready-made deck for "${text}" yet. Flashcards for any topic arrive with the AI step. For now, try a quick pick or paste your notes.`
+    // No flashcards for this topic until the AI step, so it's a feed of real Shorts.
+    loadDeck(text, [])
   }
 
   const pick = (id) => {
@@ -66,7 +113,15 @@ function FeedWithComments() {
 
   return (
     <>
-      <Feed key={deck.id} deck={deck} onOpenComments={openPanel} />
+      <Feed
+        key={deck.id}
+        deck={deck}
+        learn={learn}
+        fun={fun}
+        pattern={settings.mix}
+        onOpenComments={openPanel}
+        onRetry={() => setDeck((d) => ({ ...d, id: d.id + 1 }))}
+      />
       <CommentsPanel
         open={panel.open}
         onClose={close}
@@ -80,6 +135,8 @@ function FeedWithComments() {
         onSearch={search}
         onPick={pick}
         onNotes={fromNotes}
+        settings={settings}
+        onSettingsChange={changeSettings}
       />
     </>
   )

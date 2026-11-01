@@ -10,11 +10,12 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react'
+import Avatar from '@/components/Avatar'
 import ReelSidebar from '@/components/ReelSidebar'
 import { makeChannel } from '@/lib/fakeChannel'
 
 // Round dark button used for the desktop player controls (top of the video).
-function PlayerButton({ label, onClick, pressed, children }) {
+export function PlayerButton({ label, onClick, pressed, children }) {
   return (
     <button
       type="button"
@@ -28,17 +29,13 @@ function PlayerButton({ label, onClick, pressed, children }) {
   )
 }
 
-function ChannelLine({ channel, subscribed, onSubscribe, big }) {
+export function ChannelLine({ channel, subscribed, onSubscribe, big }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span
-        style={{ backgroundColor: channel.tone.bg, color: channel.tone.fg }}
-        className={`flex shrink-0 items-center justify-center rounded-full font-bold [text-shadow:none] ${
-          big ? 'size-9 text-base' : 'size-8 text-sm'
-        }`}
-      >
-        {channel.initial}
-      </span>
+      <Avatar
+        channel={channel}
+        className={`rounded-full ${big ? 'size-9 text-base' : 'size-8 text-sm'}`}
+      />
       <span className={`truncate font-medium ${big ? 'text-base' : 'text-[15px]'}`}>
         @{channel.handle}
       </span>

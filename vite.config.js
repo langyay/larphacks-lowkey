@@ -11,4 +11,8 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    // While developing, send /api requests to our server on port 8787.
+    proxy: { '/api': 'http://localhost:8787' },
+  },
 })
