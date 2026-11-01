@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice">
+  <rect width="640" height="360" fill="#123b2e"/>
+  <circle cx="560" cy="70" r="140" fill="#185040"/>
+  <circle cx="60" cy="330" r="120" fill="#185040"/>
+  <!-- graph paper -->
+  <g stroke="#2a6b55" stroke-width="2">
+    <path d="M170 90 H470 M170 140 H470 M170 190 H470 M170 240 H470"/>
+    <path d="M220 60 V290 M280 60 V290 M340 60 V290 M400 60 V290 M460 60 V290"/>
+  </g>
+  <!-- axes -->
+  <g fill="none" stroke="#e9eef2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M170 52 V290 H486"/>
+    <path d="M156 70 L170 50 L184 70"/>
+    <path d="M466 276 L488 290 L466 304"/>
+  </g>
+  <!-- demand (down) and supply (up) curves -->
+  <path d="M196 84 Q300 200 456 262" fill="none" stroke="#4dabf7" stroke-width="9" stroke-linecap="round"/>
+  <path d="M196 264 Q330 214 456 82" fill="none" stroke="#ff9f43" stroke-width="9" stroke-linecap="round"/>
+  <!-- equilibrium point and guide lines -->
+  <g stroke="#f0d36a" stroke-width="4" stroke-dasharray="10 9" stroke-linecap="round">
+    <path d="M318 206 V288"/>
+    <path d="M318 206 H172"/>
+  </g>
+  <circle cx="318" cy="206" r="13" fill="#f0d36a" stroke="#123b2e" stroke-width="5"/>
+  <!-- stack of coins -->
+  <g>
+    <ellipse cx="548" cy="300" rx="44" ry="13" fill="#b98a1b"/>
+    <rect x="504" y="270" width="88" height="30" fill="#d9a62a"/>
+    <ellipse cx="548" cy="270" rx="44" ry="13" fill="#b98a1b"/>
+    <rect x="504" y="242" width="88" height="28" fill="#e7b73a"/>
+    <ellipse cx="548" cy="242" rx="44" ry="13" fill="#c99a22"/>
+    <rect x="504" y="214" width="88" height="28" fill="#f2c94c"/>
+    <ellipse cx="548" cy="214" rx="44" ry="13" fill="#ffe08a"/>
+    <ellipse cx="548" cy="214" rx="26" ry="7" fill="none" stroke="#c99a22" stroke-width="4"/>
+  </g>
+  <!-- a coin mid-flip -->
+  <ellipse cx="560" cy="150" rx="14" ry="30" fill="#f2c94c" stroke="#b98a1b" stroke-width="5" transform="rotate(20 560 150)"/>
+</svg>

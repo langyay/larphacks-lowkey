@@ -22,7 +22,6 @@ function ShortCard({ short, onRemix, onOpenComments }) {
       avatar: short.avatar,
       likes: short.likes,
       comments: short.comments,
-      dislikes: null, // YouTube hides dislike counts
     }),
     [short],
   )
@@ -32,7 +31,6 @@ function ShortCard({ short, onRemix, onOpenComments }) {
   const { soundOn, unlocked } = useSound()
   const audible = soundOn && unlocked
   const [liked, setLiked] = useState(false)
-  const [disliked, setDisliked] = useState(false)
   const [saved, setSaved] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [clear, setClear] = useState(false)
@@ -105,15 +103,7 @@ function ShortCard({ short, onRemix, onOpenComments }) {
       shareText: short.title,
       shareUrl: url,
       liked,
-      onLike: () => {
-        setLiked((l) => !l)
-        setDisliked(false)
-      },
-      disliked,
-      onDislike: () => {
-        setDisliked((d) => !d)
-        setLiked(false)
-      },
+      onLike: () => setLiked((l) => !l),
       saved,
       onSave: () => setSaved((s) => !s),
       onOpenComments: () => onOpenComments({ tab: 'comments', short }),

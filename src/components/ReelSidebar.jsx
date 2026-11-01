@@ -6,14 +6,14 @@ import {
   MessageSquareText,
   Plus,
   RefreshCw,
-  ThumbsDown,
 } from 'lucide-react'
 import Avatar from '@/components/Avatar'
 import { formatCount, formatFull } from '@/lib/fakeChannel'
 
 // The Shorts action rail. Two versions, copied from the real app:
 // - phone: icons straight on the video, Like / Comments / Save / Share / Remix
-// - desktop: grey circles beside the video, Like / Dislike / Comments / Share / Remix
+// - desktop: grey circles beside the video, Like / Comments / Share / Remix
+//   (no Dislike: YouTube removed it from Shorts in 2026)
 function RailButton({ variant, label, ariaLabel, onClick, pressed, children }) {
   const phone = variant === 'phone'
   return (
@@ -59,8 +59,6 @@ function ReelSidebar({
   shareUrl,
   liked,
   onLike,
-  disliked,
-  onDislike,
   saved,
   onSave,
   onOpenComments,
@@ -112,25 +110,6 @@ function ReelSidebar({
           strokeWidth={1.75}
         />
       </RailButton>
-
-      {!phone && (
-        <RailButton
-          variant={variant}
-          label={
-            channel.dislikes == null
-              ? 'Dislike'
-              : formatCount(channel.dislikes + (disliked ? 1 : 0))
-          }
-          ariaLabel="Dislike"
-          onClick={onDislike}
-          pressed={disliked}
-        >
-          <ThumbsDown
-            className={`${icon} ${disliked ? 'fill-white' : ''}`}
-            strokeWidth={1.75}
-          />
-        </RailButton>
-      )}
 
       <RailButton
         variant={variant}

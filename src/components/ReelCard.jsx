@@ -29,7 +29,6 @@ function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments })
   const [revealed, setRevealed] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [liked, setLiked] = useState(false)
-  const [disliked, setDisliked] = useState(false)
   const [saved, setSaved] = useState(false)
   const [clear, setClear] = useState(false)
   const [paused, setPaused] = useState(false)
@@ -62,15 +61,7 @@ function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments })
   )
   const spoken = captionsOn && narration.status === 'playing' ? narration.word : -1
 
-  // Like and dislike cancel each other out, as on YouTube.
-  const like = () => {
-    setLiked((l) => !l)
-    setDisliked(false)
-  }
-  const dislike = () => {
-    setDisliked((d) => !d)
-    setLiked(false)
-  }
+  const like = () => setLiked((l) => !l)
 
   // While the screen is cleared, a tap brings the buttons back instead of flipping.
   const handleTap = () => (clear ? setClear(false) : setRevealed((r) => !r))
@@ -103,8 +94,6 @@ function ReelCard({ card, topic, seed, plain = false, onRemix, onOpenComments })
       shareText: card.question,
       liked,
       onLike: like,
-      disliked,
-      onDislike: dislike,
       saved,
       onSave: () => setSaved((s) => !s),
       // The panel needs to know which card it's explaining.
