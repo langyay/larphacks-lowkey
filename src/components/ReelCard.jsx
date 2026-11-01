@@ -25,7 +25,6 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
   const look = useLook()
   const channel = useMemo(() => makeChannel(seed), [seed])
   const format = channel.format
-  const split = format === 'split'
   const [revealed, setRevealed] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [liked, setLiked] = useState(false)
@@ -122,17 +121,16 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
       <div className="flex h-full w-full max-w-[500px] items-end lg:h-auto lg:w-auto lg:max-w-none lg:gap-4">
         {/* The "video". */}
         <div
-          style={{ backgroundColor: channel.video }}
-          className={`relative h-full w-full overflow-hidden lg:aspect-[9/16] lg:h-[calc(100dvh-24px)] lg:w-auto lg:rounded-xl ${look.frame.videoClass}`}
+          className={`relative h-full w-full overflow-hidden bg-black lg:aspect-[9/16] lg:h-[calc(100dvh-24px)] lg:w-auto lg:rounded-xl ${look.frame.videoClass}`}
         >
-          {/* Meme background: gameplay in the bottom half (split screen) or
-              behind everything (full / POV), dimmed a little so text reads. */}
+          {/* Meme background: the gameplay video fills the whole card, with the
+              question as a caption on top (dimmed a little so text reads). */}
           <MemeBackground
             kind={channel.background}
             playing={inView && !paused}
-            className={`absolute inset-x-0 bottom-0 w-full ${split ? 'h-1/2' : 'h-full'}`}
+            className="absolute inset-0 size-full"
           />
-          {!split && <div className="pointer-events-none absolute inset-0 bg-black/15" />}
+          <div className="pointer-events-none absolute inset-0 bg-black/15" />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_50%,rgb(0_0_0/0.45))]" />
 
           {format === 'pov' && (
@@ -154,12 +152,8 @@ function ReelCard({ card, topic, seed, onRemix, onOpenComments }) {
             }
             className="absolute inset-0 flex cursor-pointer flex-col outline-none [perspective:1200px]"
           >
-            {/* Split screen: caption centred in the top half. Otherwise centred on screen. */}
-            <div
-              className={`flex w-full flex-col items-center justify-center px-14 text-center lg:px-10 ${
-                split ? 'h-1/2 pt-10' : 'flex-1 pb-16'
-              }`}
-            >
+            {/* The caption, centred on the video. */}
+            <div className="flex w-full flex-1 flex-col items-center justify-center px-14 pb-16 text-center lg:px-10">
               {/* Both faces sit in the same grid cell; the inner div rotates to show one. */}
               <div
                 className={`grid w-full transition-transform duration-500 ease-out [transform-style:preserve-3d] motion-reduce:transition-none ${

@@ -28,17 +28,19 @@ import { useSkin } from '@/lib/skin'
 // Made-up accounts for TikTok's "Following accounts" list.
 const following = Array.from({ length: 5 }, (_, i) => makeChannel(`following-${i}`))
 
-function TikTokSidebar({ onSearch, onCreate, onProfile }) {
+// Only the search bar does something; it covers what Explore, Upload and
+// Profile would do, so those are just for the look like the rest.
+function TikTokSidebar({ onSearch }) {
   const items = [
     { label: 'For You', icon: House, active: true },
-    { label: 'Explore', icon: Compass, onClick: onSearch },
+    { label: 'Explore', icon: Compass },
     { label: 'Following', icon: Users },
     { label: 'Friends', icon: UserRound },
     { label: 'LIVE', icon: Tv },
     { label: 'Messages', icon: Send },
     { label: 'Activity', icon: MessageSquare },
-    { label: 'Upload', icon: SquarePlus, onClick: onCreate },
-    { label: 'Profile', icon: CircleUser, onClick: onProfile },
+    { label: 'Upload', icon: SquarePlus },
+    { label: 'Profile', icon: CircleUser },
     { label: 'More', icon: Ellipsis },
   ]
   const row = (item) => {
@@ -143,7 +145,7 @@ function InstagramSidebar({ current, onHome, onFeed, onCreate, onProfile }) {
 // `current` is 'feed' or 'home' so Instagram's rail can highlight where you are.
 function DesktopSidebar({ current, onHome, onFeed, onSearch, onCreate, onProfile }) {
   const skin = useSkin()
-  if (skin === 'tiktok') return <TikTokSidebar onSearch={onSearch} onCreate={onCreate} onProfile={onProfile} />
+  if (skin === 'tiktok') return <TikTokSidebar onSearch={onSearch} />
   if (skin === 'instagram')
     return <InstagramSidebar current={current} onHome={onHome} onFeed={onFeed} onCreate={onCreate} onProfile={onProfile} />
   return null

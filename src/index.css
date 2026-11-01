@@ -160,3 +160,12 @@
         width: 100%;
     }
 }
+/* TikTok's sound line scrolling sideways. */
+@keyframes tiktok-marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}

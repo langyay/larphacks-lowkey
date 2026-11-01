@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Pause } from 'lucide-react'
-import { toggleCover, useCover } from '@/lib/cover'
+import MemeBackground from '@/components/MemeBackground'
+import { toggleCover } from '@/lib/cover'
+import { toggleSound, unlockSound, useSound } from '@/lib/narration'
 import { useLook } from '@/skins'
 
 // A real YouTube Short in the feed, laid out exactly like the flashcards:
 // player in the "video" spot, our rail, the real channel and title.
 // The player only exists while the Short is on screen, starts muted (phones
 // require that) and tapping pauses it, like real Shorts.
+// A short with `background` instead of an `id` is a stand-in (used by focus mode
+// when no real Shorts loaded): our looping gameplay clip with a made-up creator.
 function ShortCard({ short, onRemix, onOpenComments }) {
+  const fake = !short.id
   const look = useLook()
   const channel = useMemo(
     () => ({
@@ -22,13 +27,15 @@ function ShortCard({ short, onRemix, onOpenComments }) {
     [short],
   )
   const [paused, setPaused] = useState(false)
-  const [muted, setMuted] = useState(true)
+  // Sound follows the one app-wide setting (remembered between visits). It only
+  // plays once the browser allows sound, i.e. after the first tap on the page.
+  const { soundOn, unlocked } = useSound()
+  const audible = soundOn && unlocked
   const [liked, setLiked] = useState(false)
   const [disliked, setDisliked] = useState(false)
   const [saved, setSaved] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [clear, setClear] = useState(false)
-  const cover = useCover()
 
   const sectionRef = useRef(null)
   const playerRef = useRef(null)
@@ -56,9 +63,16 @@ function ShortCard({ short, onRemix, onOpenComments }) {
     command(paused ? 'playVideo' : 'pauseVideo')
     setPaused((p) => !p)
   }
+  // Players start muted (needed for autoplay); then match the saved setting.
+  // The player may not be ready the moment it loads, so ask again shortly after.
+  const syncSound = () => {
+    command(audible ? 'unMute' : 'mute')
+    setTimeout(() => command(audible ? 'unMute' : 'mute'), 800)
+  }
+  useEffect(syncSound, [audible, inView]) // eslint-disable-line react-hooks/exhaustive-deps
   const toggleMute = () => {
-    command(muted ? 'unMute' : 'mute')
-    setMuted((m) => !m)
+    unlockSound()
+    toggleSound()
   }
   const toggleFullscreen = () => {
     const request = document.fullscreenElement
@@ -67,7 +81,7 @@ function ShortCard({ short, onRemix, onOpenComments }) {
     request?.catch(() => {})
   }
 
-  const url = `https://www.youtube.com/shorts/${short.id}`
+  const url = fake ? undefined : `https://www.youtube.com/shorts/${short.id}`
   const src =
     `https://www.youtube.com/embed/${short.id}?autoplay=1&mute=1&playsinline=1` +
     `&controls=0&loop=1&playlist=${short.id}&rel=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`
@@ -77,9 +91,9 @@ function ShortCard({ short, onRemix, onOpenComments }) {
     title: short.title,
     paused,
     onPause: togglePause,
-    soundOn: !muted,
+    soundOn: audible,
     onSound: toggleMute,
-    soundLabel: muted ? 'Unmute' : 'Mute',
+    soundLabel: audible ? 'Mute' : 'Unmute',
     onCover: toggleCover,
     onSearch: () => onOpenComments({ tab: 'search' }),
     onClear: () => setClear(true),
@@ -118,17 +132,28 @@ function ShortCard({ short, onRemix, onOpenComments }) {
         <div
           className={`relative h-full w-full overflow-hidden bg-black lg:aspect-[9/16] lg:h-[calc(100dvh-24px)] lg:w-auto lg:rounded-xl ${look.frame.videoClass}`}
         >
-          <img
-            src={`https://i.ytimg.com/vi/${short.id}/hqdefault.jpg`}
-            alt=""
-            className="absolute inset-0 size-full object-cover opacity-60"
-          />
-          {inView && !cover && (
+          {fake ? (
+            <MemeBackground
+              kind={short.background}
+              playing={inView && !paused}
+              className="absolute inset-0 size-full"
+            />
+          ) : (
+            <img
+              src={`https://i.ytimg.com/vi/${short.id}/hqdefault.jpg`}
+              alt=""
+              className="absolute inset-0 size-full object-cover opacity-60"
+            />
+          )}
+          {/* A hidden feed (e.g. behind focus mode) is never "in view", so its
+              players stop by themselves. */}
+          {!fake && inView && (
             <iframe
               ref={playerRef}
               src={src}
               title={short.title}
               allow="autoplay; encrypted-media; picture-in-picture"
+              onLoad={syncSound}
               className="absolute inset-0 size-full border-0"
             />
           )}

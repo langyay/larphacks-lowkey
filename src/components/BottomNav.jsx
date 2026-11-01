@@ -49,7 +49,9 @@ function YouTubeNav({ current, onHome, onShorts, onCreate, onProfile }) {
 }
 
 // TikTok: Home, Friends, the big +, Inbox, Profile, each with a small label.
-function TikTokNav({ onHome, onCreate, onProfile }) {
+// Only Home does something; search lives in the top bar (the 🔍), so + and
+// Profile are just for the look, like Friends and Inbox.
+function TikTokNav({ onHome }) {
   const label = 'mt-0.5 text-[11px] leading-none font-medium'
   const item = 'flex h-[52px] flex-1 cursor-pointer flex-col items-center justify-center text-white/70 outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset'
   const badge = 'absolute -top-1 left-1/2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fe2c55] px-1 text-[10px] font-bold text-white'
@@ -66,7 +68,7 @@ function TikTokNav({ onHome, onCreate, onProfile }) {
         </span>
         <span className={label}>Friends</span>
       </div>
-      <button type="button" onClick={onCreate} aria-label="Create: make a feed from your notes" className="flex h-[52px] flex-1 cursor-pointer items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset">
+      <div aria-label="Create" className="flex h-[52px] flex-1 items-center justify-center">
         <span className="relative flex h-8 w-11 items-center justify-center">
           <span className="absolute inset-y-0 left-0 w-9 rounded-lg bg-[#25f4ee]" />
           <span className="absolute inset-y-0 right-0 w-9 rounded-lg bg-[#fe2c55]" />
@@ -74,7 +76,7 @@ function TikTokNav({ onHome, onCreate, onProfile }) {
             <span className="text-2xl leading-none font-bold">+</span>
           </span>
         </span>
-      </button>
+      </div>
       <div className={`${item} cursor-default`} aria-label="Inbox">
         <span className="relative">
           <MessageSquare className="size-6" strokeWidth={1.75} />
@@ -82,36 +84,40 @@ function TikTokNav({ onHome, onCreate, onProfile }) {
         </span>
         <span className={label}>Inbox</span>
       </div>
-      <button type="button" onClick={onProfile} aria-label="Profile: settings" className={item}>
+      <div aria-label="Profile" className={`${item} cursor-default`}>
         <UserRound className="size-6" strokeWidth={1.75} />
         <span className={label}>Profile</span>
-      </button>
+      </div>
     </nav>
   )
 }
 
-// Instagram: home, reels, messages, search and your profile; the open tab gets a pill.
+// Instagram: home, reels, messages, search and your profile. No labels and no
+// highlight behind the open tab: its icon is filled (Reels) or bolder (Search).
 function InstagramNav({ current, onHome, onShorts, onProfile }) {
-  const pill = (on) => `flex h-11 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white ${on ? 'w-24 bg-white/12' : 'w-12'}`
+  const btn =
+    'flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white'
+  const onReels = current === 'shorts'
+  const bg = onReels ? 'bg-black' : 'bg-[#0c1014]'
   return (
-    <nav className={`${bar} items-center justify-around bg-[#0c1014] py-1 text-white`}>
-      <button type="button" onClick={onHome} aria-label="Home" className={pill(false)}>
+    <nav className={`${bar} items-center justify-around ${bg} text-white`}>
+      <button type="button" onClick={onHome} aria-label="Home" className={btn}>
         <House className="size-7" strokeWidth={1.75} />
       </button>
-      <button type="button" onClick={onShorts} aria-label="Reels" aria-current={current === 'shorts' ? 'page' : undefined} className={pill(current === 'shorts')}>
-        <SquarePlay className="size-7" strokeWidth={1.75} />
+      <button type="button" onClick={onShorts} aria-label="Reels" aria-current={onReels ? 'page' : undefined} className={btn}>
+        <SquarePlay
+          className={`size-7 ${onReels ? 'fill-white [&>path]:stroke-black' : ''}`}
+          strokeWidth={1.75}
+        />
       </button>
-      <div aria-label="Messages" className="flex h-11 w-12 items-center justify-center">
+      <div aria-label="Messages" className="flex h-12 w-12 items-center justify-center">
         <Send className="size-7" strokeWidth={1.75} />
       </div>
-      <button type="button" onClick={onHome} aria-label="Search and explore" aria-current={current === 'home' ? 'page' : undefined} className={pill(current === 'home')}>
-        <Search className="size-7" strokeWidth={1.75} />
+      <button type="button" onClick={onHome} aria-label="Search and explore" aria-current={current === 'home' ? 'page' : undefined} className={btn}>
+        <Search className="size-7" strokeWidth={current === 'home' ? 2.75 : 1.75} />
       </button>
-      <button type="button" onClick={onProfile} aria-label="Profile: settings" className={pill(false)}>
-        <span className="relative flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold">
-          L
-          <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-[#0c1014] bg-[#ff3040]" />
-        </span>
+      <button type="button" onClick={onProfile} aria-label="Profile: settings" className={btn}>
+        <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold">L</span>
       </button>
     </nav>
   )

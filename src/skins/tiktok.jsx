@@ -7,6 +7,7 @@ import {
   Forward,
   Heart,
   MessageCircle,
+  Music,
   Pause,
   Play,
   Plus,
@@ -73,7 +74,7 @@ function ButtonColumn({ c, desktop }) {
         <MessageCircle className="size-7" fill="white" stroke="white" />
       </Btn>
       <Btn label="Save" onClick={onSave} pressed={saved} count={counts.saves} desktop={desktop}>
-        <Bookmark className="size-7" fill={saved ? '#ffc107' : 'white'} stroke={saved ? '#ffc107' : 'white'} />
+        <Bookmark className="size-7" fill={saved ? '#fac802' : 'white'} stroke={saved ? '#fac802' : 'white'} />
       </Btn>
       <Btn label="Share" onClick={share} count={counts.shares} desktop={desktop}>
         <Forward className="size-7" fill="white" stroke="white" />
@@ -98,29 +99,23 @@ export function Inside(c) {
 
   return (
     <>
-      {/* Phone: the For You tab row. */}
-      <div className="absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/45 to-transparent px-3 pt-[max(10px,env(safe-area-inset-top))] pb-6 lg:hidden">
-        <span aria-hidden="true" className={`flex size-9 items-center justify-center ${shadow}`}>
+      {/* Phone: LIVE on the left, the tab row, search on the right — like the
+          real app. The LIVE icon secretly switches focus mode on. */}
+      <div className="absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/40 to-transparent px-3 pt-[max(10px,env(safe-area-inset-top))] pb-6 lg:hidden">
+        <button type="button" onClick={onCover} aria-label="LIVE (focus mode)" className={`${smallIcon} ${shadow}`}>
           <Tv className="size-6" strokeWidth={2} />
-        </span>
-        <div className="flex items-center gap-5 text-[17px] font-bold [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
-          <span className="text-white/65">Following</span>
-          <span className="relative text-white">
+        </button>
+        <div className="flex items-center gap-4 text-[17px] font-semibold [text-shadow:0_1px_2px_rgb(0_0_0/0.5)]">
+          <span className="text-white/60">Explore</span>
+          <span className="text-white/60">Following</span>
+          <span className="relative font-bold text-white">
             For You
-            <span className="absolute -bottom-1.5 left-1/2 h-[3px] w-6 -translate-x-1/2 rounded-full bg-white" />
+            <span className="absolute -bottom-1.5 left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-white" />
           </span>
         </div>
-        <div className={`flex ${shadow}`}>
-          <button type="button" onClick={onCover} aria-label="Someone's looking: show a decoy" className={smallIcon}>
-            <EyeOff className="size-5" />
-          </button>
-          <button type="button" onClick={onSound} aria-label={soundLabel} aria-pressed={!soundOn} className={smallIcon}>
-            {soundOn ? <Volume2 className="size-5" /> : <VolumeX className="size-5" />}
-          </button>
-          <button type="button" onClick={onSearch} aria-label="Search a topic" className={smallIcon}>
-            <Search className="size-6" strokeWidth={2.25} />
-          </button>
-        </div>
+        <button type="button" onClick={onSearch} aria-label="Search a topic" className={`${smallIcon} ${shadow}`}>
+          <Search className="size-6" strokeWidth={2.25} />
+        </button>
       </div>
 
       {/* Desktop: small controls at the top-left of the video. */}
@@ -147,11 +142,20 @@ export function Inside(c) {
       {/* Creator and caption, bottom-left (phone and desktop). */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/60 to-transparent" />
       <div className="pointer-events-none absolute right-20 bottom-6 left-3 [text-shadow:0_1px_2px_rgb(0_0_0/0.5)] lg:bottom-7 lg:left-4">
-        <p className="text-[17px] leading-tight font-bold">
-          {channel.handle} <span className="text-[14px] font-normal text-white/70">· 1d ago</span>
+        <p className="text-[16px] leading-tight font-bold">
+          {channel.handle} <span className="text-[13px] font-normal text-white/70">· 1d ago</span>
         </p>
-        <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug">
-          {title} <span className="font-semibold text-white/80">more</span>
+        <p className="mt-1.5 line-clamp-2 text-[14px] leading-snug">
+          {title} <span className="font-bold">...more</span>
+        </p>
+        {/* The sound line, scrolling sideways. */}
+        <p className="mt-2 flex items-center gap-1.5 overflow-hidden text-[13px]">
+          <Music className="size-3.5 shrink-0" strokeWidth={2.5} />
+          <span className="min-w-0 overflow-hidden whitespace-nowrap">
+            <span className="inline-block animate-[tiktok-marquee_9s_linear_infinite] pr-8 motion-reduce:animate-none">
+              original sound - {channel.handle}
+            </span>
+          </span>
         </p>
       </div>
 
@@ -176,20 +180,24 @@ export function Info() {
   return null
 }
 
-// A bar with a knob along the bottom: white on phones, TikTok red on desktop.
+// A thin line along the bottom edge. While paused it thickens and shows a
+// round knob, like TikTok's seek bar. TikTok red on desktop.
 export function Progress({ playCount, inView, paused }) {
   return (
-    <div className="absolute inset-x-3 bottom-2 h-[3px] rounded-full bg-white/30 lg:inset-x-0 lg:bottom-0 lg:rounded-none">
+    <div
+      className={`absolute inset-x-0 bottom-0 bg-white/25 ${paused ? 'h-1' : 'h-[2px]'} lg:h-1`}
+    >
       <div
         key={playCount}
         style={{
           animation: 'shorts-progress 12s linear infinite',
           animationPlayState: inView && !paused ? 'running' : 'paused',
-          backgroundColor: 'white',
         }}
-        className="relative h-full rounded-full lg:rounded-none lg:!bg-[#fe2c55]"
+        className="relative h-full bg-white/90 lg:bg-[#fe2c55]"
       >
-        <span className="absolute top-1/2 right-0 size-2.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-white lg:hidden" />
+        {paused && (
+          <span className="absolute top-1/2 right-0 size-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-white lg:hidden" />
+        )}
       </div>
     </div>
   )

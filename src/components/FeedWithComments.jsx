@@ -4,7 +4,7 @@ import Feed from '@/components/Feed'
 import CoverScreen from '@/components/CoverScreen'
 import Landing from '@/components/Landing'
 import { LogoMark } from '@/components/Logo'
-import { setCover, useCover, useCoverGesture } from '@/lib/cover'
+import { useCover, useCoverGesture } from '@/lib/cover'
 import { SkinProvider } from '@/lib/skin'
 import InstagramHome from '@/skins/InstagramHome'
 import DesktopSidebar from '@/skins/sidebars'
@@ -99,6 +99,8 @@ function FeedWithComments() {
     openId: 0,
   })
   const [recent, setRecent] = useState([])
+  // Turning focus mode on hides the comments/search panel too.
+  if (covered && panel.open) setPanel((p) => ({ ...p, open: false }))
 
   const close = useCallback(() => setPanel((p) => ({ ...p, open: false })), [])
   const goHome = () => {
@@ -181,17 +183,21 @@ function FeedWithComments() {
 
   return (
     <SkinProvider value={settings.app}>
+      {/* In focus mode the side menu stays for the look, but leads nowhere
+          study-related. */}
       <DesktopSidebar
         current={inFeed ? 'feed' : 'home'}
-        onHome={goHome}
-        onFeed={() => setView('feed')}
-        onSearch={() => openPanel({ tab: 'search' })}
-        onCreate={() => openPanel({ tab: 'search', notes: true })}
-        onProfile={() => openPanel({ tab: 'settings' })}
+        onHome={covered ? undefined : goHome}
+        onFeed={covered ? undefined : () => setView('feed')}
+        onSearch={covered ? undefined : () => openPanel({ tab: 'search' })}
+        onCreate={covered ? undefined : () => openPanel({ tab: 'search', notes: true })}
+        onProfile={covered ? undefined : () => openPanel({ tab: 'settings' })}
       />
-      {inFeed && covered && <CoverScreen shorts={decoys.items} onBack={() => setCover(false)} />}
+      {inFeed && covered && <CoverScreen shorts={decoys.items} />}
       {inFeed ? (
-        <>
+        // While focus mode is on, the study feed is hidden but kept, so you
+        // come back to the same card.
+        <div hidden={covered}>
           <Feed
             key={deck.id}
             deck={deck}
@@ -214,7 +220,7 @@ function FeedWithComments() {
               <LogoMark className="size-9" />
             </button>
           )}
-        </>
+        </div>
       ) : (
         <Home
           onSearch={search}

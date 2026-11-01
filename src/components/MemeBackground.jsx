@@ -91,24 +91,36 @@ function CanvasBackground({ kind, playing, className }) {
 
 // The looping "brainrot" background behind a card: a real video clip if there is
 // one for this kind, otherwise our drawn animation.
+// Phones on data saver or a slow connection get the drawn animation instead of
+// downloading the clips (some are tens of MB).
+const lowData = (() => {
+  const c = typeof navigator !== 'undefined' ? navigator.connection : null
+  return Boolean(c?.saveData || /(^|-)(2g|3g)$/.test(c?.effectiveType ?? ''))
+})()
+
 function MemeBackground({ kind, playing, className }) {
   const [, update] = useState(0)
   // Don't load a card's video until it has been on screen once (there are many cards).
   const [started, setStarted] = useState(false)
   if (playing && !started) setStarted(true)
 
-  if (noVideo.has(kind)) return <CanvasBackground kind={kind} playing={playing} className={className} />
-  if (!started) return <div aria-hidden="true" data-kind={kind} className={`${className} bg-black`} />
+  if (lowData || noVideo.has(kind)) return <CanvasBackground kind={kind} playing={playing} className={className} />
+  // Before it first plays: a still frame of the drawn version, not a black box.
+  if (!started) return <CanvasBackground kind={kind} playing={false} className={className} />
+  // The still frame sits underneath, so there's no black box while the clip loads.
   return (
-    <VideoBackground
-      kind={kind}
-      playing={playing}
-      className={className}
-      onMissing={() => {
-        noVideo.add(kind)
-        update((n) => n + 1)
-      }}
-    />
+    <>
+      <CanvasBackground kind={kind} playing={false} className={className} />
+      <VideoBackground
+        kind={kind}
+        playing={playing}
+        className={className}
+        onMissing={() => {
+          noVideo.add(kind)
+          update((n) => n + 1)
+        }}
+      />
+    </>
   )
 }
 

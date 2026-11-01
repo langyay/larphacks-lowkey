@@ -1,4 +1,5 @@
 import { Check, Clapperboard, GraduationCap, Layers, Minus, Plus } from 'lucide-react'
+import { toggleSound, useSound } from '@/lib/narration'
 import { APP_LOOKS, BRAINROT_LEVELS, DEFAULT_SETTINGS, FUN_CATEGORIES, MAX_PER_TYPE } from '@/lib/settings'
 
 const rows = [
@@ -39,6 +40,7 @@ function StepButton({ label, onClick, disabled, children }) {
 function SettingsPanel({ settings, onChange }) {
   const { mix, funCategories } = settings
   const total = mix.cards + mix.learn + mix.fun
+  const { soundOn } = useSound()
 
   const setCount = (key, value) => onChange({ ...settings, mix: { ...mix, [key]: value } })
   const toggleCategory = (id) =>
@@ -75,6 +77,33 @@ function SettingsPanel({ settings, onChange }) {
           )
         })}
       </div>
+
+      <h3 className="mt-8 text-base font-bold">Sound and focus mode</h3>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={soundOn}
+        onClick={toggleSound}
+        className="mt-3 flex w-full cursor-pointer items-center gap-3 rounded-xl bg-white/5 px-3 py-3 text-left outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-medium">Narration sound</span>
+          <span className="block text-xs text-white/60">The creator's voice reads each card aloud</span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${soundOn ? 'bg-primary' : 'bg-white/20'}`}
+        >
+          <span
+            className={`absolute top-0.5 size-5 rounded-full bg-white transition-[left] ${soundOn ? 'left-[22px]' : 'left-0.5'}`}
+          />
+        </span>
+      </button>
+      <p className="mt-3 text-sm text-white/60">
+        <span className="font-medium text-white">Focus mode</span> swaps the study feed for a normal-looking
+        one when someone looks over. Turn it on with the eye button (YouTube), the LIVE icon (TikTok), the
+        camera (Instagram), a two-finger double-tap, or the ` key. Do the same again to come back.
+      </p>
 
       <h3 className="mt-8 text-base font-bold">Card voice</h3>
       <p className="mt-1 text-sm text-white/60">

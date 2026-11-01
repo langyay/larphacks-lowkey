@@ -75,7 +75,8 @@ export function makeChannel(seed) {
     comments,
     dislikes,
     // How the card is dressed up as a meme Short (see ReelCard).
-    format: pick(rand, ['split', 'split', 'full', 'pov']),
+    // (Same-length list as before, so the picks after it stay the same.)
+    format: pick(rand, ['full', 'full', 'full', 'pov']),
     background: pick(rand, ['runner', 'runner', 'parkour', 'slice', 'marbles']),
     pov: pick(rand, povLines),
     // Which narrator voice this creator has (the server maps it to a voice).
@@ -84,6 +85,8 @@ export function makeChannel(seed) {
     saves: Math.max(1, Math.round(likes * (0.03 + rand() * 0.1))),
     shares: Math.max(1, Math.round(likes * (0.02 + rand() * 0.08))),
     reposts: Math.max(1, Math.round(likes * (0.01 + rand() * 0.05))),
+    // Collab partners for Instagram's "name and 1 other" line: mostly none.
+    collabs: pick(rand, [0, 0, 0, 0, 0, 1, 1, 2, 3]),
   }
 }
 
