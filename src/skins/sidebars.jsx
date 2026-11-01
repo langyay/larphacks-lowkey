@@ -107,7 +107,14 @@ function InstagramSidebar({ current, onHome, onFeed, onCreate, onProfile }) {
   const inert = 'flex size-12 items-center justify-center text-white'
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[72px] flex-col items-center justify-between bg-[#0c1014] py-5 lg:flex">
-      <LogoMark className="size-8" />
+      <button
+        type="button"
+        onClick={onProfile}
+        aria-label="Settings"
+        className="cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white"
+      >
+        <LogoMark className="size-8" />
+      </button>
       <div className="flex flex-col items-center gap-3">
         <button type="button" onClick={onHome} aria-label="Home" className={btn}>
           <House className={icon} strokeWidth={1.75} />
